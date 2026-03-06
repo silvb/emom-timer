@@ -9,7 +9,7 @@
     "id": "a2",
     "title": "A2",
     "minutes": 12,
-    "exercises": ["20 Deficit Push-ups", "5 Windmills @16kg", "30 sec Suitcase Carry"]
+    "exercises": ["20 Deficit Push-ups", "5 Windmills @16kg", "30s Suitcase Carry"]
   },
   {
     "id": "b1",
@@ -21,7 +21,7 @@
     "id": "b2",
     "title": "B2",
     "minutes": 12,
-    "exercises": ["10/10 Gorilla Rows @24kg", "6-8 1-leg RDL @16kg", "30 sec Front Rack Carry @24kg"]
+    "exercises": ["10/10 Gorilla Rows @24kg", "6-8 1-leg RDL @16kg", "30s Front Rack Carry @24kg"]
   },
   {
     "id": "c1",
@@ -33,6 +33,6 @@
     "id": "c2",
     "title": "C2",
     "minutes": 12,
-    "exercises": ["5/5 Cossack Squats", "6-8 Ring Dips", "30 sec Overhead Carry @16kg"]
+    "exercises": ["5/5 Cossack Squats", "6-8 Ring Dips", "30s Overhead Carry @16kg"]
   }
 ]
