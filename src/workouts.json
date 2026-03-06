@@ -1,20 +1,38 @@
 [
   {
-    "id": "monday-mobility",
-    "title": "Monday — Mobility",
+    "id": "a1",
+    "title": "A1",
     "minutes": 12,
-    "exercises": ["Hip Circles", "Shoulder Rolls", "Deep Squat Hold"]
+    "exercises": ["6 Zercher Squats @55kg", "6-8 Ring Pull-ups", "5/5 Cossack Squats"]
   },
   {
-    "id": "tuesday-strength",
-    "title": "Tuesday — Strength",
-    "minutes": 20,
-    "exercises": ["Push-ups", "Pull-ups", "Squats", "Dips"]
+    "id": "a2",
+    "title": "A2",
+    "minutes": 12,
+    "exercises": ["6-8 1-leg RDL @16kg", "5 Windmills @16kg", "30 sec Suitcase Carry"]
   },
   {
-    "id": "thursday-core",
-    "title": "Thursday — Core",
-    "minutes": 15,
-    "exercises": ["Plank", "Dead Bug", "Russian Twist", "Hollow Hold", "Leg Raises"]
+    "id": "b1",
+    "title": "B1",
+    "minutes": 12,
+    "exercises": ["8/8 Offset KB Deadlifts @16kg", "6-8 Ring Dips", "8 Halos @16kg"]
+  },
+  {
+    "id": "b2",
+    "title": "B2",
+    "minutes": 12,
+    "exercises": ["10/10 Gorilla Rows @24kg", "6-8 1-leg RDL @16kg", "30 sec Front Rack Carry @24kg"]
+  },
+  {
+    "id": "c1",
+    "title": "C1",
+    "minutes": 12,
+    "exercises": ["6-8 ATG Split Squats", "8-10 Ring Rows", "5 Windmills @16kg"]
+  },
+  {
+    "id": "c2",
+    "title": "C2",
+    "minutes": 12,
+    "exercises": ["5/5 Cossack Squats", "8 Halos @16kg", "30 sec Overhead Carry @16kg"]
   }
 ]
