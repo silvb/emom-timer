@@ -15,7 +15,7 @@
     "id": "b1",
     "title": "B1",
     "minutes": 12,
-    "exercises": ["8/8 Offset KB Deadlifts @16kg", "6-8 Ring Dips", "8 Halos @16kg"]
+    "exercises": ["8/8 Offset KB Deadlifts @16kg", "6-8 Ring Dips", "10 Halos @16kg"]
   },
   {
     "id": "b2",
@@ -27,12 +27,12 @@
     "id": "c1",
     "title": "C1",
     "minutes": 12,
-    "exercises": ["6-8 ATG Split Squats", "8-10 Ring Rows", "5 Windmills @16kg"]
+    "exercises": ["6-8 ATG Split Squats @16kg", "10-12 Inverted Rows", "5 Windmills @16kg"]
   },
   {
     "id": "c2",
     "title": "C2",
     "minutes": 12,
-    "exercises": ["5/5 Cossack Squats", "8 Halos @16kg", "30 sec Overhead Carry @16kg"]
+    "exercises": ["5/5 Cossack Squats", "10 Halos @16kg", "30 sec Overhead Carry @16kg"]
   }
 ]
