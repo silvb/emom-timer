@@ -1,0 +1,20 @@
+[
+  {
+    "id": "monday-mobility",
+    "title": "Monday — Mobility",
+    "minutes": 12,
+    "exercises": ["Hip Circles", "Shoulder Rolls", "Deep Squat Hold"]
+  },
+  {
+    "id": "tuesday-strength",
+    "title": "Tuesday — Strength",
+    "minutes": 20,
+    "exercises": ["Push-ups", "Pull-ups", "Squats", "Dips"]
+  },
+  {
+    "id": "thursday-core",
+    "title": "Thursday — Core",
+    "minutes": 15,
+    "exercises": ["Plank", "Dead Bug", "Russian Twist", "Hollow Hold", "Leg Raises"]
+  }
+]
