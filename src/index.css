@@ -328,18 +328,18 @@ html, body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: 32px;
+  padding: 16px 32px;
   position: relative;
+  gap: 8px;
 }
 
 .running-top {
   display: flex;
   justify-content: center;
-  padding-top: 16px;
 }
 
 .round-indicator {
-  font-size: 11px;
+  font-size: 16px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(240, 236, 228, 0.55);
@@ -354,13 +354,13 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 4px;
   text-align: center;
 }
 
 .exercise-display {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(48px, 10vw, 80px);
+  font-size: clamp(40px, 10vw, 60px);
   letter-spacing: 0.04em;
   color: rgba(240, 236, 228, 0.95);
   line-height: 1;
@@ -369,7 +369,7 @@ html, body {
 
 .time-display {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(100px, 22vw, 160px);
+  font-size: clamp(80px, 22vw, 120px);
   line-height: 1;
   letter-spacing: 0.04em;
   color: var(--text);
@@ -377,7 +377,7 @@ html, body {
 }
 
 .total-remaining {
-  font-size: 11px;
+  font-size: 16px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(240, 236, 228, 0.45);
@@ -406,7 +406,7 @@ html, body {
   flex: 1;
   padding: 16px;
   font-family: 'DM Mono', monospace;
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
