@@ -15,19 +15,19 @@
     "id": "b1",
     "title": "B1",
     "minutes": 12,
-    "exercises": ["8/8 Offset KB Deadlifts @16kg", "6-8 Ring Dips", "5/5 Cossacks"]
+    "exercises": ["8-10 1-leg Landmine RDL @10kg", "6-8 Ring Dips", "5/5 Cossacks"]
   },
   {
     "id": "b2",
     "title": "B2",
     "minutes": 12,
-    "exercises": ["10/10 Gorilla Rows @24kg", "6-8 1-leg RDL @16kg", "30s Front Rack Carry @24kg"]
+    "exercises": ["10/10 Gorilla Rows @24kg", "8-10 1-leg Landmine RDL @10kg", "30s Front Rack Carry @24kg"]
   },
   {
     "id": "c1",
     "title": "C1",
     "minutes": 12,
-    "exercises": ["6-8 ATG Split Squats @16kg", "10-12 Inverted Rows", "5 Windmills @16kg"]
+    "exercises": ["Zercher Squats @55kg", "10-12 Inverted Rows", "5 Windmills @16kg"]
   },
   {
     "id": "c2",
