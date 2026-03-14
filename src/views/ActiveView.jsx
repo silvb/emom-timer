@@ -1,11 +1,10 @@
 import { createSignal, createEffect, onCleanup, Show } from 'solid-js';
 import { deriveTimerState } from '../timer.js';
-import { playWarningBeeps, playHalfwayBeep, resumeAudio } from '../audio.js';
+import { playWarningBeeps, playHalfwayBeep } from '../audio.js';
 
 export default function ActiveView({ workout, colorMap, onCancel, onComplete }) {
   const [elapsed, setElapsed] = createSignal(0);
   const [phase, setPhase] = createSignal('countdown'); // 'countdown' | 'running' | 'paused'
-  const [pausedAt, setPausedAt] = createSignal(null);
 
   // Sound tracking — avoid re-triggering within the same second
   let lastWarningSec = -1;
@@ -132,6 +131,9 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
           <div class="running-center">
             <div class="exercise-display">{state().exerciseName}</div>
             <div class="time-display">{formatTime(state().secondsLeftInRound)}</div>
+            <div class="next-exercise-preview">
+              Next: {workout.exercises[(state().exerciseIndex + 1) % workout.exercises.length]}
+            </div>
             <div class="total-remaining">
               {formatTime(state().remaining)} total remaining
             </div>

@@ -5,12 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev       # start dev server (Vite)
-npm run build     # production build
-npm run preview   # preview production build
+pnpm run dev      # start dev server (Vite)
+pnpm run build    # production build
+pnpm run preview  # preview production build
 ```
 
-No test runner is configured.
+Node version: 22.12 (see .nvmrc). No test runner is configured.
 
 ## Architecture
 
@@ -36,3 +36,9 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 - Warning beeps at 3 seconds left in each round
 - Halfway beep at 30 seconds into each round
 - Warning beeps also fire during the last 3 seconds of the countdown
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
