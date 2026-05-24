@@ -1,6 +1,6 @@
 import { createSignal, createEffect, onCleanup, Show } from 'solid-js';
 import { deriveTimerState } from '../timer.js';
-import { playWarningBeeps, playHalfwayBeep } from '../audio.js';
+import { playWarningBeeps, playHalfwayBeep, playStartPing, playTenSecondWarning, playSuccessMelody } from '../audio.js';
 
 export default function ActiveView({ workout, colorMap, onCancel, onComplete }) {
   const [elapsed, setElapsed] = createSignal(0);
@@ -9,7 +9,10 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
   // Sound tracking — avoid re-triggering within the same second
   let lastWarningSec = -1;
   let lastHalfwaySec = -1;
+  let lastStartSec = -1;
+  let lastTenSec = -1;
   let lastCountdownBeep = false;
+  let playedSuccess = false;
 
   let intervalId = null;
 
@@ -40,6 +43,8 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
       setElapsed(0);
       lastWarningSec = -1;
       lastHalfwaySec = -1;
+      lastStartSec = -1;
+      lastTenSec = -1;
     }
   });
 
@@ -57,18 +62,40 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
     }
     if (phase() !== 'running') return;
 
+    // Workout complete — play success melody instead of the next start ping
+    if (s.phase === 'done') {
+      if (!playedSuccess) {
+        playedSuccess = true;
+        playSuccessMelody();
+      }
+      return;
+    }
+
     const secsLeft = Math.ceil(s.secondsLeftInRound);
     const secsMid = Math.floor((elapsed()) % 60);
+    const roundIdx = Math.floor(elapsed() / 60);
+
+    // Start ping at second 0 of each new exercise (incl. the first)
+    if (secsMid === 0 && lastStartSec !== roundIdx) {
+      lastStartSec = roundIdx;
+      playStartPing();
+    }
+
+    // 10-second warning before next exercise
+    if (secsLeft === 10 && lastTenSec !== roundIdx) {
+      lastTenSec = roundIdx;
+      playTenSecondWarning();
+    }
 
     // 3-second warning before next round
-    if (secsLeft === 3 && lastWarningSec !== Math.floor(elapsed() / 60)) {
-      lastWarningSec = Math.floor(elapsed() / 60);
+    if (secsLeft === 3 && lastWarningSec !== roundIdx) {
+      lastWarningSec = roundIdx;
       playWarningBeeps();
     }
 
     // Halfway beep at 30 seconds into each round
-    if (secsMid === 30 && lastHalfwaySec !== Math.floor(elapsed() / 60)) {
-      lastHalfwaySec = Math.floor(elapsed() / 60);
+    if (secsMid === 30 && lastHalfwaySec !== roundIdx) {
+      lastHalfwaySec = roundIdx;
       playHalfwayBeep();
     }
   });
@@ -94,7 +121,7 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
 
   const bgColor = () => {
     const s = state();
-    if (phase() === 'countdown') return '#111';
+    if (phase() === 'countdown') return '#fafaf7';
     return colorMap[s.exerciseName] || '#111';
   };
 
@@ -132,7 +159,12 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
             <div class="exercise-display">{state().exerciseName}</div>
             <div class="time-display">{formatTime(state().secondsLeftInRound)}</div>
             <div class="next-exercise-preview">
-              Next: {workout.exercises[(state().exerciseIndex + 1) % workout.exercises.length]}
+              <Show
+                when={state().currentRound === state().totalRounds && state().exerciseIndex === workout.exercises.length - 1}
+                fallback={`Next: ${workout.exercises[(state().exerciseIndex + 1) % workout.exercises.length]}`}
+              >
+                Last round!
+              </Show>
             </div>
             <div class="total-remaining">
               {formatTime(state().remaining)} total remaining

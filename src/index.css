@@ -1,6 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --border: #b8b4ab;
+  --text: #0a0a0a;
+  --text-muted: #3d3d3d;
+  --accent: #0a0a0a;
+}
+
+/* Active workout screens keep the dark/colored background — restore the
+   original light-on-dark palette so text reads against the exercise color. */
+.active-view {
   --bg: #0e0e0e;
   --surface: #1a1a1a;
   --border: #2e2e2e;
@@ -19,7 +30,8 @@ html, body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font-family: 'DM Mono', monospace;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -54,7 +66,7 @@ html, body {
 }
 
 .home-sub {
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -81,12 +93,12 @@ html, body {
 }
 
 .workout-card:hover {
-  background: #222;
-  border-color: #444;
+  background: #f0ece4;
+  border-color: #6e6a62;
 }
 
 .workout-card:active {
-  background: #2a2a2a;
+  background: #e6e1d6;
 }
 
 .workout-card-inner {
@@ -96,8 +108,8 @@ html, body {
 }
 
 .workout-title {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 17px;
+  font-weight: 600;
   letter-spacing: 0.02em;
 }
 
@@ -107,17 +119,17 @@ html, body {
 }
 
 .meta-pill {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
-  background: #252525;
+  background: #f0ece4;
   border: 1px solid var(--border);
   padding: 2px 8px;
 }
 
 .card-arrow {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--text-muted);
   transition: transform 0.15s, color 0.15s;
 }
@@ -142,8 +154,8 @@ html, body {
   background: none;
   border: none;
   color: var(--text-muted);
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
   letter-spacing: 0.08em;
   cursor: pointer;
   padding: 0;
@@ -201,7 +213,7 @@ html, body {
 }
 
 .stat-label {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -229,7 +241,7 @@ html, body {
 }
 
 .exercise-num {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   min-width: 24px;
   letter-spacing: 0.08em;
@@ -237,12 +249,12 @@ html, body {
 
 .exercise-name {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.04em;
 }
 
 .exercise-duration {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   letter-spacing: 0.08em;
 }
@@ -252,13 +264,13 @@ html, body {
   color: var(--bg);
   border: none;
   padding: 18px 32px;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.15s, transform 0.1s;
-  font-weight: 500;
+  font-weight: 700;
   margin-top: auto;
 }
 
@@ -290,10 +302,10 @@ html, body {
 }
 
 .countdown-label {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(240, 236, 228, 0.5);
+  color: rgba(10, 10, 10, 0.6);
 }
 
 .countdown-number {
@@ -301,7 +313,7 @@ html, body {
   font-size: clamp(140px, 30vw, 220px);
   line-height: 1;
   letter-spacing: 0.02em;
-  color: var(--text);
+  color: #0a0a0a;
   animation: pulse-in 0.3s ease;
 }
 
@@ -311,15 +323,15 @@ html, body {
 }
 
 .countdown-first {
-  font-size: 13px;
+  font-size: 14px;
   letter-spacing: 0.06em;
-  color: rgba(240, 236, 228, 0.6);
+  color: rgba(10, 10, 10, 0.7);
   margin-top: 8px;
 }
 
 .countdown-first strong {
-  color: var(--text);
-  font-weight: 500;
+  color: #0a0a0a;
+  font-weight: 600;
 }
 
 /* Running */
@@ -339,7 +351,7 @@ html, body {
 }
 
 .round-indicator {
-  font-size: 16px;
+  font-size: 18px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(240, 236, 228, 0.55);
@@ -377,7 +389,7 @@ html, body {
 }
 
 .total-remaining {
-  font-size: 16px;
+  font-size: 18px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(240, 236, 228, 0.7);
@@ -405,14 +417,14 @@ html, body {
 .ctrl-btn {
   flex: 1;
   padding: 16px;
-  font-family: 'DM Mono', monospace;
-  font-size: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.15s;
   border: 1px solid rgba(240, 236, 228, 0.3);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .ctrl-btn:hover {
