@@ -1,42 +1,24 @@
 [
   {
-    "id": "a1",
-    "title": "A1",
-    "minutes": 12,
+    "id": "a",
+    "title": "A",
+    "minutes": 16,
     "exercises": [
-      "5/5 Cossacks @16kg",
-      "10 Ring Hamstring Curls",
-      "13 Inverted Rows"
-    ]
-  },
-  {
-    "id": "a2",
-    "title": "A2",
-    "minutes": 12,
-    "exercises": [
+      "10 Hamstring Curls",
       "10 Zercher Squats @55kg",
-      "10 Hanging Leg Raises",
-      "30s Suitcase Carry @32kg"
+      "10 TRX Triceps Extensions",
+      "10 Ring Rows"
     ]
   },
   {
-    "id": "b1",
-    "title": "B1",
-    "minutes": 12,
+    "id": "b",
+    "title": "B",
+    "minutes": 16,
     "exercises": [
-      "10 BTN Press @35kg",
-      "10 1-leg KB RDL @24kg",
-      "10 Hanging Leg Raises"
-    ]
-  },
-  {
-    "id": "b2",
-    "title": "B2",
-    "minutes": 12,
-    "exercises": [
-      "10 Ring Face Pulls",
-      "10 1-leg KB RDL @24kg",
-      "10 TRX Triceps Extensions"
+      "10 Face Pulls",
+      "10/10 Landmine Press @10kg",
+      "5/5 Cossacks @16kg",
+      "6/6 1-leg KB RDL @32kg"
     ]
   }
 ]
