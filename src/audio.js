@@ -68,54 +68,7 @@ function makeDistortionCurve(amount = 80) {
 // Sawtooth at ~100 Hz with heavy distortion and a resonant lowpass for a
 // solid, reedy "PRRRT" texture that cuts through music via harmonics.
 export function playTenSecondWarning() {
-  const ac = getCtx();
-  const t0 = ac.currentTime;
-  const duration = 0.32;
-
-  const osc = ac.createOscillator();
-  const shaper = ac.createWaveShaper();
-  const filter = ac.createBiquadFilter();
-  const gainNode = ac.createGain();
-
-  osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(150, t0);
-  osc.frequency.linearRampToValueAtTime(135, t0 + 0.08);
-  osc.frequency.linearRampToValueAtTime(145, t0 + 0.18);
-  osc.frequency.linearRampToValueAtTime(118, t0 + duration);
-
-  shaper.curve = makeDistortionCurve(260);
-  shaper.oversample = '4x';
-
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(1900, t0);
-  filter.Q.setValueAtTime(3, t0);
-
-  // Noise layer for fricative rasp texture — mixed in before distortion so
-  // the shaper crunches it together with the sawtooth.
-  const noiseBuf = ac.createBuffer(1, Math.ceil(ac.sampleRate * (duration + 0.1)), ac.sampleRate);
-  const noiseData = noiseBuf.getChannelData(0);
-  for (let i = 0; i < noiseData.length; i++) noiseData[i] = Math.random() * 2 - 1;
-  const noiseSrc = ac.createBufferSource();
-  noiseSrc.buffer = noiseBuf;
-  const noiseGain = ac.createGain();
-  noiseGain.gain.setValueAtTime(0.28, t0);
-
-  osc.connect(shaper);
-  noiseSrc.connect(noiseGain);
-  noiseGain.connect(shaper);
-  shaper.connect(filter);
-  filter.connect(gainNode);
-  gainNode.connect(ac.destination);
-
-  gainNode.gain.setValueAtTime(0, t0);
-  gainNode.gain.linearRampToValueAtTime(0.38, t0 + 0.015);
-  gainNode.gain.setValueAtTime(0.38, t0 + duration - 0.06);
-  gainNode.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
-
-  osc.start(t0);
-  osc.stop(t0 + duration + 0.05);
-  noiseSrc.start(t0);
-  noiseSrc.stop(t0 + duration + 0.05);
+  playTone(880, 0.12, 0.25, 'square', 0);
 }
 
 // Resume audio context (must be called from a user gesture)

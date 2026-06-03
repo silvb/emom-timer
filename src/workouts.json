@@ -1,24 +1,62 @@
 [
   {
-    "id": "a",
-    "title": "A",
+    "id": "push",
+    "title": "Push Day",
     "minutes": 16,
     "exercises": [
-      "10 Hamstring Curls",
-      "10 Zercher Squats @55kg",
-      "10 TRX Triceps Extensions",
-      "10 Ring Rows"
+      "Face Pulls",
+      "10 Landmine Press @12.5kg",
+      "30sec KB Swings @24kg",
+      "5/5 Cossacks @16kg"
     ]
   },
   {
-    "id": "b",
-    "title": "B",
+    "id": "squat",
+    "title": "Squat Day",
     "minutes": 16,
     "exercises": [
-      "10 Face Pulls",
-      "Max Push-ups",
-      "5/5 Cossacks @16kg",
-      "6/6 1-leg KB RDL @32kg"
+      "Hamstring Curls",
+      "10 Zercher Squats @55kg",
+      "Push-ups",
+      "Ring Rows"
+    ]
+  },
+  {
+    "id": "pull",
+    "title": "Pull Day",
+    "minutes": 16,
+    "exercises": [
+      "Pull-ups",
+      "Triceps Extensions",
+      "1-leg KB RDL @32kg",
+      "Goblet Squat @24kg"
+    ]
+  },
+  {
+    "id": "hinge",
+    "title": "Hinge Day",
+    "minutes": 16,
+    "exercises": [
+      "6 Sumo Deadlifts @80kg",
+      "Biceps Curls",
+      "Sissy Squats",
+      "Ring Dips"
+    ]
+  },
+  {
+    "id": "loaded_carries",
+    "title": "Loaded Carries",
+    "minutes": 5,
+    "exercises": [
+      "Carry!"
+    ]
+  },
+  {
+    "id": "jump_rope",
+    "title": "Jump Rope",
+    "minutes": 6,
+    "exercises": [
+      "Skip!"
     ]
   }
 ]
