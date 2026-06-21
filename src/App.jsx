@@ -5,9 +5,10 @@ import { resumeAudio } from './audio.js';
 import HomeView from './views/HomeView.jsx';
 import DetailView from './views/DetailView.jsx';
 import ActiveView from './views/ActiveView.jsx';
+import ScheduleView from './views/ScheduleView.jsx';
 
 export default function App() {
-  const [view, setView] = createSignal('home'); // 'home' | 'detail' | 'active'
+  const [view, setView] = createSignal('home'); // 'home' | 'schedule' | 'detail' | 'active'
   const [selectedWorkout, setSelectedWorkout] = createSignal(null);
   const [colorMap, setColorMap] = createSignal({});
 
@@ -34,7 +35,18 @@ export default function App() {
     <div class="app">
       <Switch>
         <Match when={view() === 'home'}>
-          <HomeView workouts={workouts} onSelect={selectWorkout} />
+          <HomeView
+            workouts={workouts}
+            onSelect={selectWorkout}
+            onViewSchedule={() => setView('schedule')}
+          />
+        </Match>
+        <Match when={view() === 'schedule'}>
+          <ScheduleView
+            workouts={workouts}
+            onSelect={selectWorkout}
+            onBack={() => setView('home')}
+          />
         </Match>
         <Match when={view() === 'detail'}>
           <DetailView

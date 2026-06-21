@@ -73,6 +73,25 @@ html, body {
   margin-top: 6px;
 }
 
+.schedule-link {
+  display: inline-block;
+  margin-top: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.schedule-link:hover {
+  color: var(--text);
+}
+
 .workout-list {
   list-style: none;
   display: flex;
@@ -137,6 +156,88 @@ html, body {
 .workout-card:hover .card-arrow {
   transform: translateX(4px);
   color: var(--text);
+}
+
+/* ── SCHEDULE ── */
+
+.schedule-view {
+  min-height: 100dvh;
+  padding: 32px;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.schedule-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 52px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  margin-bottom: 32px;
+}
+
+.schedule-day {
+  margin-bottom: 32px;
+}
+
+.schedule-day-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.schedule-day-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.schedule-card {
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  user-select: none;
+}
+
+.schedule-card:hover {
+  background: #f0ece4;
+  border-color: #6e6a62;
+}
+
+.schedule-card:active {
+  background: #e6e1d6;
+}
+
+.schedule-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.schedule-card-ex {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  line-height: 1.4;
 }
 
 /* ── DETAIL ── */

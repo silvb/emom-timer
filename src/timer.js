@@ -26,6 +26,10 @@ export function deriveTimerState(elapsed, workout, phase) {
   };
 }
 
+// A "Rest" slot is a recovery minute, not a real exercise — it's part of the
+// EMOM cycle but hidden from the weekly schedule listing.
+export const isRest = (exercise) => exercise.trim().toLowerCase() === 'rest';
+
 // Assign a color to each exercise, randomly from a curated palette
 const PALETTE = [
   '#E8533A', // terracotta red

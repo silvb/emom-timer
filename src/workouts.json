@@ -1,46 +1,76 @@
 [
   {
-    "id": "push",
-    "title": "Push Day",
-    "minutes": 16,
-    "exercises": [
-      "Face Pulls",
-      "10 Landmine Press @12.5kg",
-      "30sec 1-arm KB Swings @24kg",
-      "6/6 Cossacks @16kg"
-    ]
-  },
-  {
-    "id": "squat",
-    "title": "Squat Day",
-    "minutes": 16,
+    "id": "squat_main",
+    "day": "monday",
+    "title": "Squat Main",
+    "minutes": 12,
     "exercises": [
       "Hamstring Curls",
       "10 Zercher Squats @45--50--55--55kg",
-      "Push-ups",
-      "Ring Rows"
+      "Rest"
+    ]
+  },
+  {
+    "id": "squat_acc",
+    "day": "monday",
+    "title": "Squat Accessory",
+    "minutes": 6,
+    "exercises": [
+      "Landmine Lateral Raises @0kg",
+      "Biceps Curls"
+    ]
+  },
+  {
+    "id": "upper_main",
+    "day": "tuesday",
+    "title": "Upper Body Main",
+    "minutes": 8,
+    "exercises": [
+      "Overhead Press to BTN @40kg",
+      "Gorilla Rows @24kg"
+    ]
+  },
+   {
+    "id": "upper_acc",
+    "day": "tuesday",
+    "title": "Upper Body Accessory",
+    "minutes": 6,
+    "exercises": [
+      "Triceps Extensions",
+      "Face Pulls"
     ]
   },
   {
     "id": "pull",
+    "day": "thursday",
     "title": "Pull Day",
     "minutes": 16,
     "exercises": [
       "10 Pull-ups",
-      "Landmine Lateral Raises @0kg",
-      "1-leg KB RDL @32kg",
-      "Goblet Squat @24kg"
+      "Goblet Squat @24kg",
+      "Upper Chest Ring Push-ups",
+      "1-leg KB RDL @32kg"
     ]
   },
   {
-    "id": "hinge",
-    "title": "Hinge Day",
-    "minutes": 16,
+    "id": "hinge_main",
+    "day": "friday",
+    "title": "Hinge Main",
+    "minutes": 12,
     "exercises": [
       "6 Sumo Deadlifts @80kg",
-      "Biceps Curls",
-      "Sissy Squats",
-      "Triceps Extensions"
+      "Ring Dips",
+      "Rest"
+    ]
+  },
+  {
+    "id": "hinge_acc",
+    "day": "friday",
+    "title": "Hinge Accessory",
+    "minutes": 6,
+    "exercises": [
+      "Cossack Squats @16kg",
+      "Landmine Lateral Raises @0kg"
     ]
   },
   {
