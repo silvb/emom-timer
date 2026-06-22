@@ -2,13 +2,12 @@ import { createSignal, Show, Switch, Match } from 'solid-js';
 import workouts from './workouts.json';
 import { assignColors } from './timer.js';
 import { resumeAudio } from './audio.js';
-import HomeView from './views/HomeView.jsx';
 import DetailView from './views/DetailView.jsx';
 import ActiveView from './views/ActiveView.jsx';
 import ScheduleView from './views/ScheduleView.jsx';
 
 export default function App() {
-  const [view, setView] = createSignal('home'); // 'home' | 'schedule' | 'detail' | 'active'
+  const [view, setView] = createSignal('schedule'); // 'schedule' | 'detail' | 'active'
   const [selectedWorkout, setSelectedWorkout] = createSignal(null);
   const [colorMap, setColorMap] = createSignal({});
 
@@ -34,25 +33,14 @@ export default function App() {
   return (
     <div class="app">
       <Switch>
-        <Match when={view() === 'home'}>
-          <HomeView
-            workouts={workouts}
-            onSelect={selectWorkout}
-            onViewSchedule={() => setView('schedule')}
-          />
-        </Match>
         <Match when={view() === 'schedule'}>
-          <ScheduleView
-            workouts={workouts}
-            onSelect={selectWorkout}
-            onBack={() => setView('home')}
-          />
+          <ScheduleView workouts={workouts} onSelect={selectWorkout} />
         </Match>
         <Match when={view() === 'detail'}>
           <DetailView
             workout={selectedWorkout()}
             onStart={startWorkout}
-            onBack={() => setView('home')}
+            onBack={() => setView('schedule')}
           />
         </Match>
         <Match when={view() === 'active'}>

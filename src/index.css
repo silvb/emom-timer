@@ -46,13 +46,6 @@ html, body {
 
 /* ── HOME ── */
 
-.home-view {
-  min-height: 100dvh;
-  padding: 48px 32px 64px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
 .home-header {
   margin-bottom: 48px;
 }
@@ -73,68 +66,10 @@ html, body {
   margin-top: 6px;
 }
 
-.schedule-link {
-  display: inline-block;
-  margin-top: 16px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: 0;
-  transition: color 0.15s;
-}
-
-.schedule-link:hover {
-  color: var(--text);
-}
-
-.workout-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.workout-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  user-select: none;
-}
-
-.workout-card:hover {
-  background: #f0ece4;
-  border-color: #6e6a62;
-}
-
-.workout-card:active {
-  background: #e6e1d6;
-}
-
-.workout-card-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .workout-title {
   font-size: 17px;
   font-weight: 600;
   letter-spacing: 0.02em;
-}
-
-.workout-meta {
-  display: flex;
-  gap: 8px;
 }
 
 .meta-pill {
@@ -145,17 +80,6 @@ html, body {
   background: #f0ece4;
   border: 1px solid var(--border);
   padding: 2px 8px;
-}
-
-.card-arrow {
-  font-size: 20px;
-  color: var(--text-muted);
-  transition: transform 0.15s, color 0.15s;
-}
-
-.workout-card:hover .card-arrow {
-  transform: translateX(4px);
-  color: var(--text);
 }
 
 /* ── SCHEDULE ── */
@@ -173,14 +97,6 @@ html, body {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.schedule-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 52px;
-  line-height: 1;
-  letter-spacing: 0.03em;
-  margin-bottom: 32px;
 }
 
 .schedule-day {
