@@ -21,29 +21,31 @@
     ]
   },
   {
-    "id": "upper_main",
+    "id": "push_main",
     "day": "tuesday",
-    "title": "Upper Body Main",
-    "minutes": 8,
+    "title": "Push Main",
+    "minutes": 12,
     "exercises": [
-      "Overhead Press to BTN @40kg",
-      "Gorilla Rows @24kg"
+      "8 Overhead Press to BTN @40kg",
+      "Gorilla Rows @32kg",
+      "Rest"
     ]
   },
    {
-    "id": "upper_acc",
+    "id": "push_acc",
     "day": "tuesday",
-    "title": "Upper Body Accessory",
-    "minutes": 6,
+    "title": "Push Accessory",
+    "minutes": 9,
     "exercises": [
-      "Upper Chest Ring Push-ups",
-      "Sling Face Pulls"
+      "1-arm Landmine Press @20kg",
+      "Rest",
+      "Ring Face Pulls"
     ]
   },
   {
     "id": "pull",
     "day": "thursday",
-    "title": "Pull Day",
+    "title": "Pull",
     "minutes": 16,
     "exercises": [
       "10 Pull-ups",
