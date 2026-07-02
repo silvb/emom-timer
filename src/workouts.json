@@ -16,8 +16,8 @@
     "title": "Squat Accessory",
     "minutes": 6,
     "exercises": [
-      "Landmine Lateral Raises @0kg",
-      "Biceps Curls"
+      "LM Lateral Raises @0kg",
+      "Ring Biceps Curls"
     ]
   },
   {
@@ -37,7 +37,7 @@
     "title": "Push Accessory",
     "minutes": 9,
     "exercises": [
-      "5-8 1-arm Landmine Press @20kg",
+      "5-8 1-arm Tall Kneeling LM Press @20kg",
       "Rest",
       "Ring Face Pulls"
     ]
@@ -48,8 +48,8 @@
     "title": "Pull",
     "minutes": 16,
     "exercises": [
-      "5-8 Chin-ups @5kg",
-      "Goblet Squat @24kg",
+      "5-8 Chin-ups @10kg",
+      "12 Goblet Squat @24kg",
       "Sling Triceps Extensions",
       "1-leg KB RDL @32kg"
     ]
@@ -71,8 +71,8 @@
     "title": "Hinge Accessory",
     "minutes": 6,
     "exercises": [
-      "Cossack Squats @16kg",
-      "Landmine Lateral Raises @0kg"
+      "6/6 Cossack Squats @16kg",
+      "LM Lateral Raises @0kg"
     ]
   },
   {
