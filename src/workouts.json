@@ -4,20 +4,18 @@
     "day": "monday",
     "title": "Squat Main",
     "minutes": 12,
-    "exercises": [
-      "Hamstring Curls",
-      "10 Zercher Squats @45--50--60--55kg",
-      "Rest"
-    ]
+    "exercises": ["Nordic Curls", "Rest", "10 Zercher Squats @45--50--60--60kg"]
   },
   {
     "id": "squat_acc",
     "day": "monday",
     "title": "Squat Accessory",
-    "minutes": 6,
+    "minutes": 12,
     "exercises": [
-      "LM Lateral Raises @2.5kg",
-      "Pelican Curls"
+      "12 LM Lateral Raises @2.5kg [left]",
+      "10 KB Incline Press @16kg [left]",
+      "12 LM Lateral Raises @2.5kg [right]",
+      "10 KB Incline Press @16kg [right]"
     ]
   },
   {
@@ -26,7 +24,7 @@
     "title": "Upper Main",
     "minutes": 12,
     "exercises": [
-      "8 Overhead Press @30--40--45--40kg",
+      "8 Overhead Press @35--40--45--40kg",
       "10/10 Gorilla Rows @32kg",
       "Rest"
     ]
@@ -36,10 +34,7 @@
     "day": "tuesday",
     "title": "Upper Accessory",
     "minutes": 9,
-    "exercises": [
-      "LM Meadows Rows @20kg",
-      "Ring Face Pulls"
-    ]
+    "exercises": ["10 LM Meadows Rows @22.5kg", "Rest", "Ring Face Pulls"]
   },
   {
     "id": "full_body",
@@ -59,7 +54,7 @@
     "title": "Hinge Main",
     "minutes": 12,
     "exercises": [
-      "6 Sumo Deadlifts @80--90--100--90kg",
+      "6 Sumo Deadlifts @80--90--100--100kg",
       "20 Push-ups on KBs @0",
       "Rest"
     ]
@@ -69,25 +64,18 @@
     "day": "friday",
     "title": "Hinge Accessory",
     "minutes": 6,
-    "exercises": [
-      "7/7 Cossack Squats @16kg",
-      "LM Lateral Raises @2.5kg"
-    ]
+    "exercises": ["8/8 Cossack Squats @16kg", "12 LM Lateral Raises @2.5kg"]
   },
   {
     "id": "loaded_carries",
     "title": "Loaded Carries",
     "minutes": 5,
-    "exercises": [
-      "Carry!"
-    ]
+    "exercises": ["Carry!"]
   },
   {
     "id": "jump_rope",
     "title": "Jump Rope",
     "minutes": 7,
-    "exercises": [
-      "Skip!"
-    ]
+    "exercises": ["Skip!"]
   }
 ]
