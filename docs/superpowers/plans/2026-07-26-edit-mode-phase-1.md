@@ -309,7 +309,7 @@ git commit -m "feat: add edit mode database schema with invariant triggers"
 
 **Interfaces:**
 - Consumes: tables from Task 1.
-- Produces: 18 exercises, 15 prescriptions, 9 workouts, 21 slots.
+- Produces: 18 exercises, 15 prescriptions, 9 workouts, 22 slots.
 
 This replaces the old `src/workouts.json` content. Note two deliberate structural changes carried over from the design: `squat_acc` is 2 slots × 6 rounds (was 4 × 3), and `upper_acc` is 4 rounds (was 3). Do not "correct" these back.
 
@@ -407,7 +407,7 @@ select
   (select count(*) from exercises)     as exercises,      -- expect 18
   (select count(*) from prescriptions) as prescriptions,  -- expect 15
   (select count(*) from workouts)      as workouts,       -- expect 9
-  (select count(*) from workout_slots) as slots;          -- expect 21
+  (select count(*) from workout_slots) as slots;          -- expect 22
 ```
 
 ```sql
