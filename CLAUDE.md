@@ -8,31 +8,60 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm run dev      # start dev server (Vite)
 pnpm run build    # production build
 pnpm run preview  # preview production build
+pnpm test         # run the Vitest suite once
+pnpm test:watch   # run Vitest in watch mode
 ```
 
-Node version: 22.12 (see .nvmrc). No test runner is configured.
+Node version: 22.12 (see .nvmrc).
 
 ## Architecture
 
-SolidJS single-page app. No router library — navigation is a `view` signal in `App.jsx` with values `'home' | 'detail' | 'active'`.
+SolidJS single-page app. No router library — navigation is a `view` signal in `App.jsx` with values `'schedule' | 'detail' | 'active'`.
 
 **Data flow:**
-- `workouts.json` — static array of workout objects `{ id, title, minutes, exercises[] }`
-- `App.jsx` — holds top-level signals (`view`, `selectedWorkout`, `colorMap`) and passes callbacks down to views
-- Views live in `views/` and are stateless except for `ActiveView`
+- Supabase is the only source of truth — tables `exercises`, `prescriptions`, `workouts`, `workout_slots`, plus a `current_prescriptions` view (`distinct on (exercise_slug)`, latest row per exercise)
+- `db.js` — `loadProgramme()` fetches all four tables, calls `shapeProgramme`, and caches the result in localStorage; on fetch failure it falls back to the cache and marks the data `stale`. `savePrescription()` inserts a new `prescriptions` row.
+- `model.js` — `shapeProgramme(exerciseRows, prescriptionRows, workoutRows, slotRows)` turns the flat table reads into the nested `{ workouts, exercises }` shape the views consume; `validateWorkout(workout)` returns human-readable problems (missing prescriptions, wrong weight counts) before a workout can start
+- `App.jsx` — loads the programme once via `createResource(loadProgramme)` behind `LoginGate`; holds top-level signals (`view`, `selectedId`, `colorMap`, `toast`) and passes callbacks down to views
+- Views live in `views/`; most are stateless, but `ActiveView` (elapsed/phase), `DetailView` (`editingSlot`), and `EditSlotSheet` (`repsMin`, `repsMax`, `weights`, `formError`, `busy`) hold their own signals
 
 **Key modules:**
 - `timer.js` — pure function `deriveTimerState(elapsed, workout, phase)` that derives all display state from elapsed seconds; no side effects, easy to test
+- `render.js` — pure functions (`describeSlot`, `repsText`, `weightParts`, `sideLabel`) that turn a slot plus a round index into display parts, not a formatted string, so the active screen can emphasise one weight inside a ramp
+- `db.js` — Supabase I/O: fetch, localStorage cache fallback, append-only `savePrescription`
+- `auth.jsx` — session signal backed by `supabase.auth`, plus the `LoginGate` component that shows a sign-in form until a session exists
 - `audio.js` — Web Audio API with lazy `AudioContext` initialization; `resumeAudio()` must be called from a user gesture before sounds will play
 - `ActiveView.jsx` — owns the interval (100ms ticks, 0.1s increments), a 10-second countdown phase before the workout starts, pause/resume logic, and `createEffect` hooks that trigger audio cues
+- `components/ExerciseLine.jsx`, `components/Toast.jsx`, `views/EditSlotSheet.jsx` — presentational pieces; the edit sheet is the only place that calls `savePrescription`
 
 **EMOM timing logic** (in `timer.js`):
-- Each exercise gets exactly 1 minute
-- `exerciseIndex = floor(elapsed / 60) % exercises.length`
-- `currentRound = floor(elapsed / (60 * exercises.length)) + 1`
-- `totalRounds = workout.minutes / workout.exercises.length`
+- Each slot gets exactly 1 minute
+- Round and slot come from an absolute minute index `m = floor(elapsed / 60)`: `slotIndex = m % slots.length`, `roundIndex = floor(m / slots.length)`
+- `totalRounds = workout.rounds` (source of truth); `minutes = rounds * slots.length` is derived and display-only — this inverts the old relationship where rounds were derived from minutes
 
 **Audio cues** (in `ActiveView.jsx`):
+- Start ping at second 0 of each exercise (including the first)
+- 10-second warning
 - Warning beeps at 3 seconds left in each round
 - Halfway beep at 30 seconds into each round
 - Warning beeps also fire during the last 3 seconds of the countdown
+- Success melody when the workout completes, instead of the next start ping
+- The dedupe key is the absolute minute index (`floor(elapsed / 60)`), not `roundIndex`, which resets every round
+
+## Data model
+
+- Exercise `type`: `ramp_up` (constant reps, one weight per round), `rep_range` (min–max reps, one weight), `fixed`, `plain` (no numbers — Rest, Carry, Skip; never has a prescription)
+- `prescriptions` is **append-only**: one row per change, and that row history is the user's training journal. There is no update or delete RLS policy — the app only ever `select`s and `insert`s. `current_prescriptions` exposes just the latest row per exercise.
+- `movement` groups exercise variants together for trend analysis (e.g. different Squat variants share a movement)
+- Slot `side`: `alternating` (both sides done within the minute) or `per_round` (left on even `roundIndex`, right on odd — round 1 is left); whether a slot needs a side at all is determined by the exercise's `unilateral` flag, enforced by the `check_slot_shape` DB trigger
+- `exercises`, `workouts` and `workout_slots` are **read-only to `authenticated`** (`owner_read`, select only — see `0006_narrow_policies.sql`). The client never writes them. Structural changes are dashboard SQL run as the service role, which bypasses RLS; adding a write policy back to the client is not the way to make one.
+- Edit-form rules live in `prescriptionFormError` (`model.js`), not in the sheet, so they are unit-testable. It takes the raw input **strings**: `Number('')` is `0` and `0` is a legitimate bodyweight prescription, so blank fields must be caught before any coercion.
+
+## Gotchas
+
+- The hazard isn't destructuring itself, it's reading a prop that can change while the component stays mounted: destructuring reads each getter once, at mount, so a view whose data changes underneath it (e.g. `DetailView` across a save-triggered `refetch()`) keeps rendering stale values. Use `props.x` at every call site for anything that can change post-mount. `ActiveView.jsx` and `ScheduleView.jsx` do destructure their props, but safely — `Switch`/`Match` unmounts and remounts them on every view change, so there's never a stale-read window.
+- `deriveTimerState`'s phase argument must route `paused` down the `running` branch (`phase() === 'countdown' ? 'countdown' : 'running'`) — sending `paused` to the countdown branch returns a shape with no `.slot`, which throws as soon as Pause is pressed.
+
+## Environment
+
+`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are required and safe to ship in the client bundle — RLS is the security boundary, not secrecy of these values. A service-role key must never be assigned to a `VITE_`-prefixed variable or committed to any file: Vite inlines every `VITE_*` value into the built JavaScript.

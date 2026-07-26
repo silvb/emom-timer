@@ -156,6 +156,29 @@ html, body {
   line-height: 1.4;
 }
 
+/* Pushed to the bottom of the schedule screen by margin-top: auto — the only
+   sign-out affordance in the app, and it should never compete with a workout
+   card for a thumb. */
+.sign-out-btn {
+  align-self: center;
+  margin-top: auto;
+  padding: 20px 12px 4px;
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.sign-out-btn:hover {
+  opacity: 1;
+}
+
 /* ── DETAIL ── */
 
 .detail-view {
@@ -276,6 +299,74 @@ html, body {
   letter-spacing: 0.08em;
 }
 
+.exercise-item-tappable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.exercise-item-tappable:hover {
+  background: #f0ece4;
+}
+
+.exercise-item-tappable:active {
+  background: #e6e1d6;
+}
+
+/* ── EXERCISE LINE ── */
+
+.ex-line {
+  display: inline;
+}
+
+.ex-reps {
+  color: var(--text-muted);
+}
+
+.ex-weight-sep {
+  color: var(--text-muted);
+  margin: 0 1px;
+}
+
+.ex-weight-current {
+  font-weight: 700;
+  font-size: 1.08em;
+}
+
+.ex-side {
+  font-size: 0.9em;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* ── VALIDATION PANEL ── */
+
+.validation-panel {
+  border: 1px solid #c23b2f;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.validation-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c23b2f;
+  margin-bottom: 10px;
+}
+
+.validation-panel-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  line-height: 1.4;
+}
+
 .start-btn {
   background: var(--text);
   color: var(--bg);
@@ -393,7 +484,7 @@ html, body {
   letter-spacing: 0.04em;
   color: rgba(240, 236, 228, 0.95);
   line-height: 1;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 .time-display {
@@ -402,7 +493,11 @@ html, body {
   line-height: 1;
   letter-spacing: 0.04em;
   color: var(--text);
-  text-shadow: 0 4px 30px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+.next-exercise-preview {
+  color: rgba(240, 236, 228, 0.95);
 }
 
 .total-remaining {
@@ -456,4 +551,339 @@ html, body {
 .pause-btn {
   background: rgba(240, 236, 228, 0.15);
   color: rgba(240, 236, 228, 0.9);
+}
+
+/* Two tiers on the active screen, both expressed as colour. Never `opacity`
+   here: it multiplies against .exercise-display's own alpha, which is how one
+   line ended up carrying five different brightness levels — reps at .75, name
+   and unit at .95, dimmed weights at .475, separators at .75.
+
+   Scoped to .active-view deliberately. The schedule and detail screens call
+   describeSlot(slot, null), and weightParts() highlights nothing for a null
+   round, so *every* weight there is non-current — an unscoped dim rule would
+   grey out all of them and emphasise nothing.
+
+   Order matters: the current weight carries both .ex-weight and
+   .ex-weight-current at equal specificity, so its rule must come last. */
+.running-screen .ex-weight,
+.running-screen .ex-weight-sep {
+  color: rgba(240, 236, 228, 0.42);
+  opacity: 1;
+}
+
+.running-screen .ex-reps,
+.running-screen .ex-name,
+.running-screen .ex-at,
+.running-screen .ex-unit,
+.running-screen .ex-side,
+.running-screen .ex-weight-current {
+  color: rgba(240, 236, 228, 0.95);
+  opacity: 1;
+}
+
+/* Bebas Neue ships a single weight, so `font-weight: 700` can only render as
+   synthetic faux-bold — a smeared glyph rather than a heavier one. Size and the
+   contrast against the dimmed siblings carry the emphasis instead. */
+.running-screen .ex-weight-current {
+  font-weight: 400;
+  font-size: 1.2em;
+}
+
+/* The countdown paints on #fafaf7, so it needs the same hierarchy in dark ink
+   rather than the running screen's cream. Its font is JetBrains Mono, which has
+   a real bold, so the current weight keeps the base font-weight. */
+.countdown-screen .ex-weight,
+.countdown-screen .ex-weight-sep {
+  color: rgba(10, 10, 10, 0.38);
+}
+
+.countdown-screen .ex-reps,
+.countdown-screen .ex-name,
+.countdown-screen .ex-at,
+.countdown-screen .ex-unit,
+.countdown-screen .ex-side,
+.countdown-screen .ex-weight-current {
+  color: rgba(10, 10, 10, 0.8);
+}
+
+/* ── LOGIN ── */
+
+.login-view {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 32px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-form input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+
+.login-form input::placeholder {
+  color: var(--text-muted);
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.login-form .start-btn {
+  margin-top: 6px;
+}
+
+.login-form .start-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.login-error {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #c23b2f;
+  text-align: center;
+}
+
+/* ── APP STATE ── */
+
+.app-state {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.app-error {
+  color: var(--text);
+}
+
+.app-error .start-btn {
+  margin-top: 0;
+}
+
+.stale-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #d4a017;
+  color: #0a0a0a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 10px 16px;
+}
+
+/* ── EDIT SHEET ── */
+
+.edit-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 40;
+}
+
+.edit-sheet {
+  width: 100%;
+  max-width: 600px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 28px 24px calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-sheet-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: 0.03em;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-field label {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.edit-field input {
+  min-height: 44px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  padding: 10px 14px;
+  width: 100%;
+}
+
+.stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.stepper input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Square 48px targets, deliberately larger than the 44px minimum: these get
+   pressed with cold hands between sets. */
+.stepper-btn {
+  flex: 0 0 48px;
+  min-height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.stepper-btn:active {
+  background: var(--border);
+}
+
+/* Collapse the doubled border between the buttons and the field. */
+.stepper-btn:first-child {
+  border-right: none;
+}
+
+.stepper-btn:last-child {
+  border-left: none;
+}
+
+.edit-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.edit-affected {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+}
+
+.edit-error {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #c23b2f;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.edit-actions button {
+  flex: 1;
+  min-height: 44px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-weight: 700;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.edit-cancel-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.edit-cancel-btn:hover {
+  color: var(--text);
+}
+
+.edit-save-btn {
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+}
+
+.edit-save-btn:hover {
+  opacity: 0.9;
+}
+
+.edit-cancel-btn:disabled,
+.edit-save-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── TOAST ── */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 50; /* above .edit-sheet-backdrop (40) so a toast is never hidden behind the sheet */
+  width: calc(100% - 48px);
+  max-width: 440px;
+  background: rgba(10, 10, 10, 0.94);
+  color: #f0ece4;
+  border: 1px solid rgba(240, 236, 228, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 14px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: center;
 }

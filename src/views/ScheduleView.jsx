@@ -1,5 +1,8 @@
 import { For, Show } from 'solid-js';
+import { signOut } from '../auth.jsx';
 import { isRest } from '../timer.js';
+import { describeSlot } from '../render.js';
+import ExerciseLine from '../components/ExerciseLine.jsx';
 
 const DAYS = [
   { key: 'monday', label: 'Monday' },
@@ -19,8 +22,8 @@ function WorkoutCard(props) {
         <span class="meta-pill">{props.workout.minutes} min</span>
       </div>
       <ul class="schedule-card-ex">
-        <For each={props.workout.exercises.filter((ex) => !isRest(ex))}>
-          {(ex) => <li>{ex}</li>}
+        <For each={props.workout.slots.filter((slot) => !isRest(slot.exercise))}>
+          {(slot) => <li><ExerciseLine parts={describeSlot(slot, null)} /></li>}
         </For>
       </ul>
     </li>
@@ -63,6 +66,11 @@ export default function ScheduleView({ workouts, onSelect }) {
             </ul>
           </section>
         </Show>
+
+        {/* The only way out of the session. Deliberately at the bottom of the
+            schedule screen and nowhere near the detail or active screens:
+            signing out by accident mid-workout would end the workout. */}
+        <button class="sign-out-btn" onClick={() => signOut()}>Sign out</button>
       </div>
     </div>
   );
