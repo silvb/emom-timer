@@ -276,6 +276,74 @@ html, body {
   letter-spacing: 0.08em;
 }
 
+.exercise-item-tappable {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.exercise-item-tappable:hover {
+  background: #f0ece4;
+}
+
+.exercise-item-tappable:active {
+  background: #e6e1d6;
+}
+
+/* ── EXERCISE LINE ── */
+
+.ex-line {
+  display: inline;
+}
+
+.ex-reps {
+  color: var(--text-muted);
+}
+
+.ex-weight-sep {
+  color: var(--text-muted);
+  margin: 0 1px;
+}
+
+.ex-weight-current {
+  font-weight: 700;
+  font-size: 1.08em;
+}
+
+.ex-side {
+  font-size: 0.9em;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* ── VALIDATION PANEL ── */
+
+.validation-panel {
+  border: 1px solid #c23b2f;
+  padding: 20px;
+  margin-top: auto;
+}
+
+.validation-panel-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #c23b2f;
+  margin-bottom: 10px;
+}
+
+.validation-panel-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  line-height: 1.4;
+}
+
 .start-btn {
   background: var(--text);
   color: var(--bg);

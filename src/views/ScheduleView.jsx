@@ -1,5 +1,7 @@
 import { For, Show } from 'solid-js';
 import { isRest } from '../timer.js';
+import { describeSlot } from '../render.js';
+import ExerciseLine from '../components/ExerciseLine.jsx';
 
 const DAYS = [
   { key: 'monday', label: 'Monday' },
@@ -19,8 +21,8 @@ function WorkoutCard(props) {
         <span class="meta-pill">{props.workout.minutes} min</span>
       </div>
       <ul class="schedule-card-ex">
-        <For each={props.workout.exercises.filter((ex) => !isRest(ex))}>
-          {(ex) => <li>{ex}</li>}
+        <For each={props.workout.slots.filter((slot) => !isRest(slot.exercise))}>
+          {(slot) => <li><ExerciseLine parts={describeSlot(slot, null)} /></li>}
         </For>
       </ul>
     </li>
