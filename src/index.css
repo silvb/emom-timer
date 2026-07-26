@@ -484,7 +484,7 @@ html, body {
   letter-spacing: 0.04em;
   color: rgba(240, 236, 228, 0.95);
   line-height: 1;
-  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 .time-display {
@@ -493,7 +493,7 @@ html, body {
   line-height: 1;
   letter-spacing: 0.04em;
   color: var(--text);
-  text-shadow: 0 4px 30px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 .next-exercise-preview {
@@ -553,34 +553,40 @@ html, body {
   color: rgba(240, 236, 228, 0.9);
 }
 
-/* .ex-reps/.ex-weight-sep/.ex-side inherit --text-muted, which this scope sets
-   to #7a7670 — near-invisible against the terracotta exercise colors behind
-   it. Override with a lighter, fixed value here only; the schedule and detail
-   screens keep the muted treatment, which reads fine on their light surface. */
-.active-view .ex-reps,
-.active-view .ex-weight-sep,
-.active-view .ex-side {
-  color: rgba(240, 236, 228, 0.75);
-}
-
-/* Bebas Neue is imported at a single weight, so the `font-weight: 700` on
-   .ex-weight-current can only render as synthetic faux-bold: at 40-60px on a
-   saturated background that is roughly 4px and a smudge between the weight on
-   the bar and the three that are not. De-emphasise the others instead —
-   opacity reads at arm's length whatever the font's weight axis does.
+/* Two tiers on the active screen, both expressed as colour. Never `opacity`
+   here: it multiplies against .exercise-display's own alpha, which is how one
+   line ended up carrying five different brightness levels — reps at .75, name
+   and unit at .95, dimmed weights at .475, separators at .75.
 
    Scoped to .active-view deliberately. The schedule and detail screens call
    describeSlot(slot, null), and weightParts() highlights nothing for a null
-   round (highlight = -1), so *every* weight there is non-current — an unscoped
-   rule would dim all of them and emphasise nothing. Inside .active-view the
-   round index is always a real number, so exactly one weight is current. */
-.active-view .ex-weight {
-  opacity: 0.5;
+   round, so *every* weight there is non-current — an unscoped dim rule would
+   grey out all of them and emphasise nothing.
+
+   Order matters: the current weight carries both .ex-weight and
+   .ex-weight-current at equal specificity, so its rule must come last. */
+.active-view .ex-weight,
+.active-view .ex-weight-sep {
+  color: rgba(240, 236, 228, 0.42);
+  opacity: 1;
 }
 
+.active-view .ex-reps,
+.active-view .ex-name,
+.active-view .ex-at,
+.active-view .ex-unit,
+.active-view .ex-side,
 .active-view .ex-weight-current {
+  color: rgba(240, 236, 228, 0.95);
   opacity: 1;
-  font-size: 1.15em;
+}
+
+/* Bebas Neue ships a single weight, so `font-weight: 700` can only render as
+   synthetic faux-bold — a smeared glyph rather than a heavier one. Size and the
+   contrast against the dimmed siblings carry the emphasis instead. */
+.active-view .ex-weight-current {
+  font-weight: 400;
+  font-size: 1.2em;
 }
 
 /* ── LOGIN ── */

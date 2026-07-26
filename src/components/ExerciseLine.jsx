@@ -6,7 +6,7 @@ export default function ExerciseLine(props) {
       <Show when={props.parts.reps}><span class="ex-reps">{props.parts.reps}</span>{' '}</Show>
       <span class="ex-name">{props.parts.name}</span>
       <Show when={props.parts.weights.length}>
-        {' @'}
+        {' '}<span class="ex-at">@</span>
         <For each={props.parts.weights}>
           {(w, i) => (
             <>
@@ -15,7 +15,7 @@ export default function ExerciseLine(props) {
             </>
           )}
         </For>
-        {'kg'}
+        <span class="ex-unit">kg</span>
       </Show>
       <Show when={props.parts.side}>{' '}<span class="ex-side">[{props.parts.side}]</span></Show>
     </span>
