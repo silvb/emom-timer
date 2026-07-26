@@ -23,7 +23,7 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 - `db.js` — `loadProgramme()` fetches all four tables, calls `shapeProgramme`, and caches the result in localStorage; on fetch failure it falls back to the cache and marks the data `stale`. `savePrescription()` inserts a new `prescriptions` row.
 - `model.js` — `shapeProgramme(exerciseRows, prescriptionRows, workoutRows, slotRows)` turns the flat table reads into the nested `{ workouts, exercises }` shape the views consume; `validateWorkout(workout)` returns human-readable problems (missing prescriptions, wrong weight counts) before a workout can start
 - `App.jsx` — loads the programme once via `createResource(loadProgramme)` behind `LoginGate`; holds top-level signals (`view`, `selectedId`, `colorMap`, `toast`) and passes callbacks down to views
-- Views live in `views/` and are stateless except for `ActiveView`
+- Views live in `views/`; most are stateless, but `ActiveView` (elapsed/phase), `DetailView` (`editingSlot`), and `EditSlotSheet` (`repsMin`, `repsMax`, `weights`, `formError`, `busy`) hold their own signals
 
 **Key modules:**
 - `timer.js` — pure function `deriveTimerState(elapsed, workout, phase)` that derives all display state from elapsed seconds; no side effects, easy to test
@@ -50,7 +50,12 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 - Exercise `type`: `ramp_up` (constant reps, one weight per round), `rep_range` (min–max reps, one weight), `fixed`, `plain` (no numbers — Rest, Carry, Skip; never has a prescription)
 - `prescriptions` is **append-only**: one row per change, and that row history is the user's training journal. There is no update or delete RLS policy — the app only ever `select`s and `insert`s. `current_prescriptions` exposes just the latest row per exercise.
 - `movement` groups exercise variants together for trend analysis (e.g. different Squat variants share a movement)
-- Slot `side`: `alternating` (both sides done within the minute) or `per_round` (left on even `roundIndex`, right on odd — round 1 is left)
+- Slot `side`: `alternating` (both sides done within the minute) or `per_round` (left on even `roundIndex`, right on odd — round 1 is left); whether a slot needs a side at all is determined by the exercise's `unilateral` flag, enforced by the `check_slot_shape` DB trigger
+
+## Gotchas
+
+- Never destructure props in a Solid component signature — destructuring reads each getter once, at mount, so a view that stays mounted while its data changes (e.g. `DetailView` across a save-triggered `refetch()`) keeps rendering stale values. Use `props.x` at every call site.
+- `deriveTimerState`'s phase argument must route `paused` down the `running` branch (`phase() === 'countdown' ? 'countdown' : 'running'`) — sending `paused` to the countdown branch returns a shape with no `.slot`, which throws as soon as Pause is pressed.
 
 ## Environment
 
