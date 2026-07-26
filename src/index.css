@@ -457,3 +457,121 @@ html, body {
   background: rgba(240, 236, 228, 0.15);
   color: rgba(240, 236, 228, 0.9);
 }
+
+/* ── LOGIN ── */
+
+.login-view {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 32px;
+}
+
+.login-form {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.login-form input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+
+.login-form input::placeholder {
+  color: var(--text-muted);
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.login-form .start-btn {
+  margin-top: 6px;
+}
+
+.login-form .start-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.login-error {
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #c23b2f;
+  text-align: center;
+}
+
+/* ── APP STATE ── */
+
+.app-state {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 32px;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.app-error {
+  color: var(--text);
+}
+
+.app-error .start-btn {
+  margin-top: 0;
+}
+
+.stale-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #d4a017;
+  color: #0a0a0a;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 10px 16px;
+}
+
+/* ── TOAST ── */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: calc(100% - 48px);
+  max-width: 440px;
+  background: rgba(10, 10, 10, 0.94);
+  color: #f0ece4;
+  border: 1px solid rgba(240, 236, 228, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  padding: 14px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: center;
+}
