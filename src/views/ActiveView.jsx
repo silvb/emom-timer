@@ -35,7 +35,7 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
   startInterval();
   onCleanup(stopInterval);
 
-  const state = () => deriveTimerState(elapsed(), workout, phase() === 'running' ? 'running' : 'countdown');
+  const state = () => deriveTimerState(elapsed(), workout, phase() === 'countdown' ? 'countdown' : 'running');
 
   // Transition from countdown to running
   createEffect(() => {
