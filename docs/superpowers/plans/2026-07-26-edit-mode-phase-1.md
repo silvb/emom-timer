@@ -1214,18 +1214,21 @@ git commit -m "feat: add supabase client with cache fallback and append-only wri
 - [ ] **Step 1: Write `src/auth.jsx`**
 
 ```jsx
-import { createSignal, onCleanup, Show } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { supabase } from './db.js';
 
 const [session, setSession] = createSignal(null);
 const [ready, setReady] = createSignal(false);
 
-supabase.auth.getSession().then(({ data }) => {
-  setSession(data.session);
-  setReady(true);
-});
+supabase.auth
+  .getSession()
+  .then(({ data }) => setSession(data.session))
+  .catch(() => setSession(null))
+  .finally(() => setReady(true));
 
-const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => setSession(next));
+// Page-lifetime singleton: deliberately never unsubscribed. Tearing this down
+// from a component's onCleanup would kill it permanently on any remount.
+supabase.auth.onAuthStateChange((_event, next) => setSession(next));
 
 export const useSession = () => session;
 export const signOut = () => supabase.auth.signOut();
@@ -1235,8 +1238,6 @@ export function LoginGate(props) {
   const [password, setPassword] = createSignal('');
   const [error, setError] = createSignal(null);
   const [busy, setBusy] = createSignal(false);
-
-  onCleanup(() => sub?.subscription?.unsubscribe());
 
   async function submit(e) {
     e.preventDefault();
@@ -1361,7 +1362,7 @@ function Programme() {
 
   return (
     <>
-      <Show when={data()?.stale}>
+      <Show when={!data.error && data()?.stale}>
         <div class="stale-banner">Offline — showing your last saved workouts.</div>
       </Show>
 
