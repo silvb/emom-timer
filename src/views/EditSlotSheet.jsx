@@ -141,7 +141,7 @@ export default function EditSlotSheet(props) {
               <input
                 type="number"
                 inputmode="decimal"
-                step="0.5"
+                step="2.5"
                 min="0"
                 value={weights()[0]}
                 onInput={(e) => setWeightAt(0, e.currentTarget.value)}
@@ -156,7 +156,7 @@ export default function EditSlotSheet(props) {
                 <input
                   type="number"
                   inputmode="decimal"
-                  step="0.5"
+                  step="2.5"
                   min="0"
                   value={w}
                   onInput={(e) => setWeightAt(i(), e.currentTarget.value)}
