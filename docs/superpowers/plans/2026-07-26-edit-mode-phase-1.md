@@ -1510,6 +1510,7 @@ git commit -m "feat: render schedule and detail views from the database"
 
 - [ ] **Step 1: Update the state field references**
 
+- **Fix `state()`'s phase ternary first.** It reads `phase() === 'running' ? 'running' : 'countdown'`, which routes the **paused** phase into the countdown branch — returning a shape with no `.slot`. The old string/bracket access tolerated that; the new property chains throw. Change it to `phase() === 'countdown' ? 'countdown' : 'running'`. Safe because `elapsed()` does not advance while paused. This also repairs a pre-existing bug where a paused screen showed `NaN:NaN` and a `#111` background.
 - `state().exerciseName` → `state().slot.exercise.name`
 - `bgColor()`: `colorMap[s.exerciseName]` → `colorMap[s.slot.exercise.slug]`
 - The "Last round!" condition becomes simply `state().next === null` — drop the old `currentRound === totalRounds && exerciseIndex === exercises.length - 1` expression.
