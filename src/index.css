@@ -565,18 +565,18 @@ html, body {
 
    Order matters: the current weight carries both .ex-weight and
    .ex-weight-current at equal specificity, so its rule must come last. */
-.active-view .ex-weight,
-.active-view .ex-weight-sep {
+.running-screen .ex-weight,
+.running-screen .ex-weight-sep {
   color: rgba(240, 236, 228, 0.42);
   opacity: 1;
 }
 
-.active-view .ex-reps,
-.active-view .ex-name,
-.active-view .ex-at,
-.active-view .ex-unit,
-.active-view .ex-side,
-.active-view .ex-weight-current {
+.running-screen .ex-reps,
+.running-screen .ex-name,
+.running-screen .ex-at,
+.running-screen .ex-unit,
+.running-screen .ex-side,
+.running-screen .ex-weight-current {
   color: rgba(240, 236, 228, 0.95);
   opacity: 1;
 }
@@ -584,9 +584,26 @@ html, body {
 /* Bebas Neue ships a single weight, so `font-weight: 700` can only render as
    synthetic faux-bold — a smeared glyph rather than a heavier one. Size and the
    contrast against the dimmed siblings carry the emphasis instead. */
-.active-view .ex-weight-current {
+.running-screen .ex-weight-current {
   font-weight: 400;
   font-size: 1.2em;
+}
+
+/* The countdown paints on #fafaf7, so it needs the same hierarchy in dark ink
+   rather than the running screen's cream. Its font is JetBrains Mono, which has
+   a real bold, so the current weight keeps the base font-weight. */
+.countdown-screen .ex-weight,
+.countdown-screen .ex-weight-sep {
+  color: rgba(10, 10, 10, 0.38);
+}
+
+.countdown-screen .ex-reps,
+.countdown-screen .ex-name,
+.countdown-screen .ex-at,
+.countdown-screen .ex-unit,
+.countdown-screen .ex-side,
+.countdown-screen .ex-weight-current {
+  color: rgba(10, 10, 10, 0.8);
 }
 
 /* ── LOGIN ── */
