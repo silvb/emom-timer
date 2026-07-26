@@ -108,6 +108,11 @@ export function validateWorkout(workout) {
 // before any Number() call.
 //
 // Returns a human-readable message, or null when the input is safe to save.
+// A comma is the decimal separator on a German keyboard, and it is what gets
+// typed for "82,5". `type="number"` inputs reject it outright, so the weight
+// fields are plain text and normalise here instead.
+export const normalizeDecimal = (value) => String(value ?? '').trim().replace(',', '.');
+
 export function prescriptionFormError({ type, rounds, repsMin, repsMax, weights }) {
   const weightStrings = (weights ?? []).map((w) => String(w ?? ''));
 
@@ -118,7 +123,7 @@ export function prescriptionFormError({ type, rounds, repsMin, repsMax, weights 
     return 'Enter a value for reps.';
   }
 
-  const parsedWeights = weightStrings.map(Number);
+  const parsedWeights = weightStrings.map((w) => Number(normalizeDecimal(w)));
   if (parsedWeights.some((w) => Number.isNaN(w) || w < 0)) {
     return 'Every weight must be a number of 0 or more.';
   }

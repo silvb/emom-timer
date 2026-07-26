@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { shapeProgramme, validateWorkout, prescriptionFormError } from './model.js';
+import {
+  shapeProgramme,
+  validateWorkout,
+  prescriptionFormError,
+  normalizeDecimal,
+} from './model.js';
 
 const rows = () => ({
   exercises: [
@@ -195,5 +200,37 @@ describe('prescriptionFormError', () => {
 
   it('rejects an empty weight list outright', () => {
     expect(prescriptionFormError(form({ weights: [] }))).toBe('Enter a weight for every round.');
+  });
+
+  // A German keyboard's decimal separator is a comma, so "82,5" is what
+  // actually gets typed into the weight field.
+  it('accepts a comma as the decimal separator', () => {
+    expect(prescriptionFormError(form({ weights: ['82,5'] }))).toBeNull();
+  });
+
+  it('still rejects a comma-separated value that is not a number', () => {
+    expect(prescriptionFormError(form({ weights: ['8,2,5'] }))).toBe(
+      'Every weight must be a number of 0 or more.'
+    );
+  });
+});
+
+describe('normalizeDecimal', () => {
+  it('converts a comma decimal separator to a dot', () => {
+    expect(normalizeDecimal('82,5')).toBe('82.5');
+    expect(Number(normalizeDecimal('82,5'))).toBe(82.5);
+  });
+
+  it('leaves a dot separator alone', () => {
+    expect(normalizeDecimal('2.5')).toBe('2.5');
+  });
+
+  it('trims surrounding whitespace', () => {
+    expect(normalizeDecimal('  60  ')).toBe('60');
+  });
+
+  it('handles null and undefined without throwing', () => {
+    expect(normalizeDecimal(null)).toBe('');
+    expect(normalizeDecimal(undefined)).toBe('');
   });
 });

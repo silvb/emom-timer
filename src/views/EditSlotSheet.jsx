@@ -1,6 +1,6 @@
-import { createSignal, createMemo, For, Show } from 'solid-js';
+import { createSignal, createMemo, Index, Show } from 'solid-js';
 import { savePrescription } from '../db.js';
-import { prescriptionFormError } from '../model.js';
+import { prescriptionFormError, normalizeDecimal } from '../model.js';
 
 // Bottom sheet for editing the reps/weights of a single exercise. Prescriptions
 // are append-only (see db.js) and are keyed by exercise slug, not by slot, so
@@ -73,7 +73,7 @@ export default function EditSlotSheet(props) {
         exercise_slug: exercise().slug,
         reps_min: Number(repsMin()),
         reps_max: Number(repsMax()),
-        weights: weights().map(Number),
+        weights: weights().map((w) => Number(normalizeDecimal(w))),
       });
       props.onSaved(); // triggers refetch in App
       props.onClose();
@@ -139,31 +139,32 @@ export default function EditSlotSheet(props) {
             <div class="edit-field">
               <label>Weight</label>
               <input
-                type="number"
+                type="text"
                 inputmode="decimal"
-                step="2.5"
-                min="0"
+                autocomplete="off"
                 value={weights()[0]}
                 onInput={(e) => setWeightAt(0, e.currentTarget.value)}
               />
             </div>
           }
         >
-          <For each={weights()}>
+          {/* Index, not For: For is keyed by item value, so editing one weight
+              rebuilds that row's DOM and the focused input — and the mobile
+              number pad — is destroyed mid-typing. Index keys by position. */}
+          <Index each={weights()}>
             {(w, i) => (
               <div class="edit-field">
-                <label>Round {i() + 1}</label>
+                <label>Round {i + 1}</label>
                 <input
-                  type="number"
+                  type="text"
                   inputmode="decimal"
-                  step="2.5"
-                  min="0"
-                  value={w}
-                  onInput={(e) => setWeightAt(i(), e.currentTarget.value)}
+                  autocomplete="off"
+                  value={w()}
+                  onInput={(e) => setWeightAt(i, e.currentTarget.value)}
                 />
               </div>
             )}
-          </For>
+          </Index>
         </Show>
 
         <Show when={affectedWorkouts().length > 0}>
