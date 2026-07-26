@@ -17,6 +17,7 @@
 - `movement` must be populated on every exercise, even when it equals the slug.
 - Both foreign keys pointing at `exercises` use `on delete restrict`.
 - Node 22.12 (`.nvmrc`), package manager `pnpm@10.32.1`.
+- **Never destructure props in a Solid component signature.** Destructuring reads each getter once at component invocation. Views that stay mounted across a `refetch()` — `DetailView` during a save — would then render stale data forever. Use `props.x` at every call site.
 - Do not build anything listed in the spec's "Out of scope" section. In particular: no exercise/workout/slot CRUD, no per-session performance logging, no charts.
 - Existing timer and audio behaviour must not change: 10s countdown, start ping, 10s and 3s warnings, halfway beep at 30s, pause/resume, completion melody.
 
