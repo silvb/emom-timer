@@ -70,11 +70,14 @@ export default function EditSlotSheet(props) {
 
     const min = Number(repsMin());
     const max = Number(repsMax());
-    if (Number.isNaN(min) || min < 1) {
-      return 'Reps must be a number of 1 or more.';
+    // reps_min/reps_max are `int` columns in Postgres — a 5.5 from an
+    // over-stepped input passes every check above but fails at the database
+    // with an opaque "invalid input syntax for type integer", so catch it here.
+    if (!Number.isInteger(min) || min < 1) {
+      return 'Reps must be a whole number of 1 or more.';
     }
-    if (Number.isNaN(max) || max < min) {
-      return 'Max reps must be greater than or equal to min reps.';
+    if (!Number.isInteger(max) || max < min) {
+      return 'Max reps must be a whole number greater than or equal to min reps.';
     }
 
     return null;
@@ -98,7 +101,11 @@ export default function EditSlotSheet(props) {
       props.onSaved(); // triggers refetch in App
       props.onClose();
     } catch (e) {
-      props.onError(e.message ?? 'Could not save. Try again.');
+      // Surface the failure in-sheet, not via the global toast: the sheet is
+      // deliberately kept open for retry, and the toast renders at the same
+      // bottom-of-viewport spot behind the sheet's own backdrop, so a toast
+      // here would be invisible to the user who is looking at this form.
+      setFormError(e.message ?? 'Could not save. Try again.');
     } finally {
       setBusy(false);
     }
@@ -116,8 +123,9 @@ export default function EditSlotSheet(props) {
               <label>Reps</label>
               <input
                 type="number"
-                inputmode="decimal"
-                step="0.5"
+                inputmode="numeric"
+                step="1"
+                min="1"
                 value={repsMin()}
                 onInput={(e) => setSingleReps(e.currentTarget.value)}
               />
@@ -128,8 +136,9 @@ export default function EditSlotSheet(props) {
             <label>Reps Min</label>
             <input
               type="number"
-              inputmode="decimal"
-              step="0.5"
+              inputmode="numeric"
+              step="1"
+              min="1"
               value={repsMin()}
               onInput={(e) => setRepsMin(e.currentTarget.value)}
             />
@@ -138,8 +147,9 @@ export default function EditSlotSheet(props) {
             <label>Reps Max</label>
             <input
               type="number"
-              inputmode="decimal"
-              step="0.5"
+              inputmode="numeric"
+              step="1"
+              min="1"
               value={repsMax()}
               onInput={(e) => setRepsMax(e.currentTarget.value)}
             />
@@ -155,6 +165,7 @@ export default function EditSlotSheet(props) {
                 type="number"
                 inputmode="decimal"
                 step="0.5"
+                min="0"
                 value={weights()[0]}
                 onInput={(e) => setWeightAt(0, e.currentTarget.value)}
               />
@@ -169,6 +180,7 @@ export default function EditSlotSheet(props) {
                   type="number"
                   inputmode="decimal"
                   step="0.5"
+                  min="0"
                   value={w}
                   onInput={(e) => setWeightAt(i(), e.currentTarget.value)}
                 />

@@ -530,6 +530,16 @@ html, body {
   color: rgba(240, 236, 228, 0.9);
 }
 
+/* .ex-reps/.ex-weight-sep/.ex-side inherit --text-muted, which this scope sets
+   to #7a7670 — near-invisible against the terracotta exercise colors behind
+   it. Override with a lighter, fixed value here only; the schedule and detail
+   screens keep the muted treatment, which reads fine on their light surface. */
+.active-view .ex-reps,
+.active-view .ex-weight-sep,
+.active-view .ex-side {
+  color: rgba(240, 236, 228, 0.75);
+}
+
 /* ── LOGIN ── */
 
 .login-view {
@@ -754,7 +764,7 @@ html, body {
   left: 50%;
   bottom: 24px;
   transform: translateX(-50%);
-  z-index: 30;
+  z-index: 50; /* above .edit-sheet-backdrop (40) so a toast is never hidden behind the sheet */
   width: calc(100% - 48px);
   max-width: 440px;
   background: rgba(10, 10, 10, 0.94);

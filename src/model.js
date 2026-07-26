@@ -60,6 +60,11 @@ export function shapeProgramme(exerciseRows, prescriptionRows, workoutRows, slot
 export function validateWorkout(workout) {
   const problems = [];
 
+  if (workout.slots.length === 0) {
+    problems.push('This workout has no exercises yet.');
+    return problems;
+  }
+
   workout.slots.forEach((slot) => {
     const ex = slot.exercise;
     if (!ex) {

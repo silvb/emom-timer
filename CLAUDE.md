@@ -40,9 +40,12 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 - `totalRounds = workout.rounds` (source of truth); `minutes = rounds * slots.length` is derived and display-only — this inverts the old relationship where rounds were derived from minutes
 
 **Audio cues** (in `ActiveView.jsx`):
+- Start ping at second 0 of each exercise (including the first)
+- 10-second warning
 - Warning beeps at 3 seconds left in each round
 - Halfway beep at 30 seconds into each round
 - Warning beeps also fire during the last 3 seconds of the countdown
+- Success melody when the workout completes, instead of the next start ping
 - The dedupe key is the absolute minute index (`floor(elapsed / 60)`), not `roundIndex`, which resets every round
 
 ## Data model
@@ -54,7 +57,7 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 
 ## Gotchas
 
-- Never destructure props in a Solid component signature — destructuring reads each getter once, at mount, so a view that stays mounted while its data changes (e.g. `DetailView` across a save-triggered `refetch()`) keeps rendering stale values. Use `props.x` at every call site.
+- The hazard isn't destructuring itself, it's reading a prop that can change while the component stays mounted: destructuring reads each getter once, at mount, so a view whose data changes underneath it (e.g. `DetailView` across a save-triggered `refetch()`) keeps rendering stale values. Use `props.x` at every call site for anything that can change post-mount. `ActiveView.jsx` and `ScheduleView.jsx` do destructure their props, but safely — `Switch`/`Match` unmounts and remounts them on every view change, so there's never a stale-read window.
 - `deriveTimerState`'s phase argument must route `paused` down the `running` branch (`phase() === 'countdown' ? 'countdown' : 'running'`) — sending `paused` to the countdown branch returns a shape with no `.slot`, which throws as soon as Pause is pressed.
 
 ## Environment

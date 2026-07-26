@@ -88,4 +88,9 @@ describe('validateWorkout', () => {
     w.slots[0].exercise.prescription = null;
     expect(validateWorkout(w)).toHaveLength(1);
   });
+
+  it('reports a workout with no slots instead of allowing it to start', () => {
+    const w = { id: 'w', title: 'W', day: null, rounds: 4, position: 1, minutes: 0, slots: [] };
+    expect(validateWorkout(w)).toEqual(['This workout has no exercises yet.']);
+  });
 });
