@@ -49,6 +49,17 @@ export default function EditSlotSheet(props) {
   });
 
   function validationError() {
+    // Number('') is 0, not NaN — an emptied field must never be read as a
+    // deliberate zero. Check for blank strings before any Number() coercion,
+    // for weights AND reps, even though the reps floor of 1 currently masks
+    // this for reps (defense in depth: don't rely on that incidental cover).
+    if (weights().some((w) => w.trim() === '')) {
+      return 'Enter a weight for every round.';
+    }
+    if (repsMin().trim() === '' || repsMax().trim() === '') {
+      return 'Enter a value for reps.';
+    }
+
     const parsedWeights = weights().map(Number);
     if (parsedWeights.some((w) => Number.isNaN(w) || w < 0)) {
       return 'Every weight must be a number of 0 or more.';

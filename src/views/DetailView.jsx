@@ -4,46 +4,49 @@ import { validateWorkout } from '../model.js';
 import ExerciseLine from '../components/ExerciseLine.jsx';
 import EditSlotSheet from './EditSlotSheet.jsx';
 
-export default function DetailView({ workout, workouts, onStart, onBack, onSaved, onError }) {
-  const problems = () => validateWorkout(workout);
+export default function DetailView(props) {
+  const problems = () => validateWorkout(props.workout);
   const [editingSlot, setEditingSlot] = createSignal(null);
 
-  // Plain slots (Rest, Carry, Skip) have no prescription row and never open the editor.
+  // Plain slots (Rest, Carry, Skip) have no prescription row and never open the
+  // editor. Also guard against a slot whose exercise reference is gone —
+  // validateWorkout() already anticipates that shape (model.js).
   function editSlot(slot) {
+    if (!slot.exercise) return;
     if (slot.exercise.type === 'plain') return;
     setEditingSlot(slot);
   }
 
   return (
     <div class="detail-view">
-      <button class="back-btn" onClick={onBack}>← Back</button>
+      <button class="back-btn" onClick={props.onBack}>← Back</button>
 
       <div class="detail-content">
-        <h1 class="detail-title">{workout.title}</h1>
+        <h1 class="detail-title">{props.workout.title}</h1>
 
         <div class="detail-stats">
           <div class="stat-block">
-            <span class="stat-value">{workout.minutes}</span>
+            <span class="stat-value">{props.workout.minutes}</span>
             <span class="stat-label">minutes</span>
           </div>
           <div class="stat-divider" />
           <div class="stat-block">
-            <span class="stat-value">{workout.slots.length}</span>
+            <span class="stat-value">{props.workout.slots.length}</span>
             <span class="stat-label">exercises</span>
           </div>
           <div class="stat-divider" />
           <div class="stat-block">
-            <span class="stat-value">{workout.rounds}</span>
+            <span class="stat-value">{props.workout.rounds}</span>
             <span class="stat-label">rounds</span>
           </div>
         </div>
 
         <ul class="exercise-list">
-          <For each={workout.slots}>
+          <For each={props.workout.slots}>
             {(slot, i) => (
               <li
                 class="exercise-item"
-                classList={{ 'exercise-item-tappable': slot.exercise.type !== 'plain' }}
+                classList={{ 'exercise-item-tappable': slot.exercise?.type !== 'plain' }}
                 onClick={() => editSlot(slot)}
               >
                 <span class="exercise-num">{String(i() + 1).padStart(2, '0')}</span>
@@ -65,7 +68,7 @@ export default function DetailView({ workout, workouts, onStart, onBack, onSaved
             </div>
           }
         >
-          <button class="start-btn" onClick={onStart}>
+          <button class="start-btn" onClick={props.onStart}>
             Start Workout
           </button>
         </Show>
@@ -74,10 +77,10 @@ export default function DetailView({ workout, workouts, onStart, onBack, onSaved
       <Show when={editingSlot()}>
         <EditSlotSheet
           slot={editingSlot()}
-          workouts={workouts}
+          workouts={props.workouts}
           onClose={() => setEditingSlot(null)}
-          onSaved={onSaved}
-          onError={onError}
+          onSaved={props.onSaved}
+          onError={props.onError}
         />
       </Show>
     </div>
