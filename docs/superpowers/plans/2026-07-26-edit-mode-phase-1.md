@@ -1056,8 +1056,7 @@ export function validateWorkout(workout) {
         problems.push(
           `${ex.name} is built for ${ex.rounds} rounds but this workout has ${workout.rounds}.`
         );
-      }
-      if (count !== ex.rounds) {
+      } else if (count !== ex.rounds) {
         problems.push(`${ex.name} needs ${ex.rounds} weights but has ${count}.`);
       }
     } else if (count !== 1) {
