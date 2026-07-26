@@ -4,6 +4,7 @@ import {
   validateWorkout,
   prescriptionFormError,
   normalizeDecimal,
+  stepValue,
 } from './model.js';
 
 const rows = () => ({
@@ -232,5 +233,43 @@ describe('normalizeDecimal', () => {
   it('handles null and undefined without throwing', () => {
     expect(normalizeDecimal(null)).toBe('');
     expect(normalizeDecimal(undefined)).toBe('');
+  });
+});
+
+describe('stepValue', () => {
+  it('adds a barbell increment', () => {
+    expect(stepValue('80', 2.5, { min: 0 })).toBe('82.5');
+    expect(stepValue('82.5', 2.5, { min: 0 })).toBe('85');
+  });
+
+  it('subtracts and clamps at the minimum', () => {
+    expect(stepValue('2.5', -2.5, { min: 0 })).toBe('0');
+    expect(stepValue('0', -2.5, { min: 0 })).toBe('0');
+  });
+
+  it('treats a blank field as zero so the first press still lands', () => {
+    expect(stepValue('', 2.5, { min: 0 })).toBe('2.5');
+    expect(stepValue('', 1, { min: 1, integer: true })).toBe('1');
+  });
+
+  it('clamps reps at one rather than zero', () => {
+    expect(stepValue('1', -1, { min: 1, integer: true })).toBe('1');
+    expect(stepValue('8', -1, { min: 1, integer: true })).toBe('7');
+  });
+
+  it('keeps reps whole even when the field held a decimal', () => {
+    expect(stepValue('5.4', 1, { min: 1, integer: true })).toBe('6');
+  });
+
+  it('steps a comma-typed value', () => {
+    expect(stepValue('82,5', 2.5, { min: 0 })).toBe('85');
+  });
+
+  it('does not leak floating point noise into an unrepairable row', () => {
+    expect(stepValue('0.1', 0.2, { min: 0 })).toBe('0.3');
+  });
+
+  it('falls back to zero for unparseable text', () => {
+    expect(stepValue('abc', 2.5, { min: 0 })).toBe('2.5');
   });
 });

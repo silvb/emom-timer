@@ -1,6 +1,55 @@
 import { createSignal, createMemo, Index, Show } from 'solid-js';
 import { savePrescription } from '../db.js';
-import { prescriptionFormError, normalizeDecimal } from '../model.js';
+import { prescriptionFormError, normalizeDecimal, stepValue } from '../model.js';
+
+// 2.5 kg is one pair of 1.25 kg plates — the smallest real jump on a barbell,
+// and every ramp exercise in the programme is a barbell lift. Anything finer,
+// or a fixed-jump kettlebell, gets typed instead.
+const WEIGHT_STEP = 2.5;
+const REPS_STEP = 1;
+
+// A labelled text field with -/+ buttons either side. Text rather than
+// type="number" because a number input discards anything it considers invalid,
+// which ate the comma decimal separator and threw the cursor to the start.
+// mousedown is suppressed on the buttons so tapping one does not blur the
+// input — on a phone that would close the keyboard between every press.
+function StepperField(props) {
+  const bump = (delta) =>
+    props.onInput(stepValue(props.value, delta, { min: props.min, integer: props.integer }));
+
+  return (
+    <div class="edit-field">
+      <label>{props.label}</label>
+      <div class="stepper">
+        <button
+          type="button"
+          class="stepper-btn"
+          aria-label={`Decrease ${props.label}`}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => bump(-props.step)}
+        >
+          −
+        </button>
+        <input
+          type="text"
+          inputmode={props.inputmode}
+          autocomplete="off"
+          value={props.value}
+          onInput={(e) => props.onInput(e.currentTarget.value)}
+        />
+        <button
+          type="button"
+          class="stepper-btn"
+          aria-label={`Increase ${props.label}`}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => bump(props.step)}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
 
 // Bottom sheet for editing the reps/weights of a single exercise. Prescriptions
 // are append-only (see db.js) and are keyed by exercise slug, not by slot, so
@@ -96,56 +145,48 @@ export default function EditSlotSheet(props) {
         <Show
           when={isRepRange()}
           fallback={
-            <div class="edit-field">
-              <label>Reps</label>
-              <input
-                type="number"
-                inputmode="numeric"
-                step="1"
-                min="1"
-                value={repsMin()}
-                onInput={(e) => setSingleReps(e.currentTarget.value)}
-              />
-            </div>
+            <StepperField
+              label="Reps"
+              value={repsMin()}
+              onInput={setSingleReps}
+              step={REPS_STEP}
+              min={1}
+              integer
+              inputmode="numeric"
+            />
           }
         >
-          <div class="edit-field">
-            <label>Reps Min</label>
-            <input
-              type="number"
-              inputmode="numeric"
-              step="1"
-              min="1"
-              value={repsMin()}
-              onInput={(e) => setRepsMin(e.currentTarget.value)}
-            />
-          </div>
-          <div class="edit-field">
-            <label>Reps Max</label>
-            <input
-              type="number"
-              inputmode="numeric"
-              step="1"
-              min="1"
-              value={repsMax()}
-              onInput={(e) => setRepsMax(e.currentTarget.value)}
-            />
-          </div>
+          <StepperField
+            label="Reps Min"
+            value={repsMin()}
+            onInput={setRepsMin}
+            step={REPS_STEP}
+            min={1}
+            integer
+            inputmode="numeric"
+          />
+          <StepperField
+            label="Reps Max"
+            value={repsMax()}
+            onInput={setRepsMax}
+            step={REPS_STEP}
+            min={1}
+            integer
+            inputmode="numeric"
+          />
         </Show>
 
         <Show
           when={isRampUp()}
           fallback={
-            <div class="edit-field">
-              <label>Weight</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                autocomplete="off"
-                value={weights()[0]}
-                onInput={(e) => setWeightAt(0, e.currentTarget.value)}
-              />
-            </div>
+            <StepperField
+              label="Weight"
+              value={weights()[0]}
+              onInput={(v) => setWeightAt(0, v)}
+              step={WEIGHT_STEP}
+              min={0}
+              inputmode="decimal"
+            />
           }
         >
           {/* Index, not For: For is keyed by item value, so editing one weight
@@ -153,16 +194,14 @@ export default function EditSlotSheet(props) {
               number pad — is destroyed mid-typing. Index keys by position. */}
           <Index each={weights()}>
             {(w, i) => (
-              <div class="edit-field">
-                <label>Round {i + 1}</label>
-                <input
-                  type="text"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  value={w()}
-                  onInput={(e) => setWeightAt(i, e.currentTarget.value)}
-                />
-              </div>
+              <StepperField
+                label={`Round ${i + 1}`}
+                value={w()}
+                onInput={(v) => setWeightAt(i, v)}
+                step={WEIGHT_STEP}
+                min={0}
+                inputmode="decimal"
+              />
             )}
           </Index>
         </Show>

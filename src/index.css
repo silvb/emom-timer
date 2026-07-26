@@ -736,6 +736,48 @@ html, body {
   width: 100%;
 }
 
+.stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.stepper input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Square 48px targets, deliberately larger than the 44px minimum: these get
+   pressed with cold hands between sets. */
+.stepper-btn {
+  flex: 0 0 48px;
+  min-height: 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.stepper-btn:active {
+  background: var(--border);
+}
+
+/* Collapse the doubled border between the buttons and the field. */
+.stepper-btn:first-child {
+  border-right: none;
+}
+
+.stepper-btn:last-child {
+  border-left: none;
+}
+
 .edit-field input:focus {
   outline: none;
   border-color: var(--accent);

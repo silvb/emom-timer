@@ -113,6 +113,19 @@ export function validateWorkout(workout) {
 // fields are plain text and normalise here instead.
 export const normalizeDecimal = (value) => String(value ?? '').trim().replace(',', '.');
 
+// One press of a +/- stepper. Treats a blank or unparseable field as 0 so the
+// first press still lands on something sensible, clamps at `min`, and rounds
+// away float noise (0.1 + 0.2) rather than writing 2.8000000000000003 to a row
+// that can never be edited afterwards.
+export function stepValue(current, delta, { min = 0, integer = false } = {}) {
+  const parsed = Number(normalizeDecimal(current));
+  const base = Number.isFinite(parsed) ? parsed : 0;
+  let next = base + delta;
+  if (integer) next = Math.round(next);
+  if (next < min) next = min;
+  return String(Number(next.toFixed(2)));
+}
+
 export function prescriptionFormError({ type, rounds, repsMin, repsMax, weights }) {
   const weightStrings = (weights ?? []).map((w) => String(w ?? ''));
 
