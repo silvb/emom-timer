@@ -1,14 +1,17 @@
-import { For, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import { describeSlot } from '../render.js';
 import { validateWorkout } from '../model.js';
 import ExerciseLine from '../components/ExerciseLine.jsx';
+import EditSlotSheet from './EditSlotSheet.jsx';
 
-export default function DetailView({ workout, onStart, onBack, onSaved, onError }) {
+export default function DetailView({ workout, workouts, onStart, onBack, onSaved, onError }) {
   const problems = () => validateWorkout(workout);
+  const [editingSlot, setEditingSlot] = createSignal(null);
 
-  // Task 10 wires up the actual editor; plain slots (Rest, Carry, Skip) never open it.
+  // Plain slots (Rest, Carry, Skip) have no prescription row and never open the editor.
   function editSlot(slot) {
     if (slot.exercise.type === 'plain') return;
+    setEditingSlot(slot);
   }
 
   return (
@@ -67,6 +70,16 @@ export default function DetailView({ workout, onStart, onBack, onSaved, onError 
           </button>
         </Show>
       </div>
+
+      <Show when={editingSlot()}>
+        <EditSlotSheet
+          slot={editingSlot()}
+          workouts={workouts}
+          onClose={() => setEditingSlot(null)}
+          onSaved={onSaved}
+          onError={onError}
+        />
+      </Show>
     </div>
   );
 }

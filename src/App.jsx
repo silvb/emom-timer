@@ -60,6 +60,7 @@ function Programme() {
         <Match when={data() && view() === 'detail'}>
           <DetailView
             workout={selectedWorkout()}
+            workouts={workouts()}
             onStart={startWorkout}
             onBack={() => setView('schedule')}
             onSaved={refetch}
