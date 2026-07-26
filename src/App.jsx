@@ -2,6 +2,7 @@ import { createSignal, createResource, Show, Switch, Match } from 'solid-js';
 import { assignColors } from './timer.js';
 import { resumeAudio } from './audio.js';
 import { loadProgramme } from './db.js';
+import { cacheAgeText } from './render.js';
 import { LoginGate } from './auth.jsx';
 import Toast from './components/Toast.jsx';
 import DetailView from './views/DetailView.jsx';
@@ -42,7 +43,9 @@ function Programme() {
   return (
     <>
       <Show when={!data.error && data()?.stale}>
-        <div class="stale-banner">Offline — showing your last saved workouts.</div>
+        <div class="stale-banner">
+          Offline — showing workouts saved {cacheAgeText(data().cachedAt) ?? 'earlier'}.
+        </div>
       </Show>
 
       <Switch fallback={<div class="app-state">Loading…</div>}>

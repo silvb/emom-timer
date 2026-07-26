@@ -48,7 +48,12 @@ export async function loadProgramme() {
     return { programme, stale: false };
   } catch (error) {
     const cached = readCache();
-    if (cached) return { programme: cached.programme, stale: true, error };
+    // cachedAt is what makes the stale banner honest: five seconds offline and
+    // three weeks offline are the same screen without it, and only one of them
+    // is safe to load a bar from. Older cache entries predate the field.
+    if (cached) {
+      return { programme: cached.programme, stale: true, cachedAt: cached.at ?? null, error };
+    }
     throw error;
   }
 }

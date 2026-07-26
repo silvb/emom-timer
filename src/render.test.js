@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sideLabel, repsText, weightParts, describeSlot } from './render.js';
+import { sideLabel, repsText, weightParts, describeSlot, cacheAgeText } from './render.js';
 
 const exercise = (over = {}) => ({
   slug: 'x', movement: 'x', name: 'X', type: 'fixed', rounds: null, unilateral: false,
@@ -81,7 +81,12 @@ describe('weightParts', () => {
     expect(weightParts(ramp, null).every((w) => w.current === false)).toBe(true);
   });
 
-  it('coerces numeric strings, because postgres numeric[] arrives as strings', () => {
+  // PostgREST serialises this project's numeric[] as JSON numbers — checked
+  // against the live rows: weights for sumo_deadlift come back as
+  // [80,90,110,100], not ["80",...]. The Number() coercion is defensive, not
+  // load-bearing: it also covers a hand-edited cache entry or any future
+  // client that hands weights over as text.
+  it('coerces numeric strings, whatever the source hands it', () => {
     const ex = exercise({ prescription: { reps_min: 12, reps_max: 12, weights: ['2.5'] } });
     expect(weightParts(ex, 0)).toEqual([{ value: 2.5, current: true }]);
   });
@@ -109,5 +114,33 @@ describe('describeSlot', () => {
   it('assembles a bare line for Rest', () => {
     const rest = exercise({ slug: 'rest', name: 'Rest', type: 'plain', prescription: null });
     expect(describeSlot(slot(rest), 0)).toEqual({ reps: null, name: 'Rest', weights: [], side: null });
+  });
+});
+
+describe('cacheAgeText', () => {
+  const now = Date.UTC(2026, 6, 26, 12, 0, 0);
+  const ago = (ms) => cacheAgeText(now - ms, now);
+
+  it('reads as just now inside the first minute', () => {
+    expect(ago(5_000)).toBe('just now');
+    expect(ago(59_000)).toBe('just now');
+  });
+
+  it('counts whole minutes, then hours, then days', () => {
+    expect(ago(60_000)).toBe('1 minute ago');
+    expect(ago(45 * 60_000)).toBe('45 minutes ago');
+    expect(ago(60 * 60_000)).toBe('1 hour ago');
+    expect(ago(5 * 60 * 60_000)).toBe('5 hours ago');
+    expect(ago(24 * 60 * 60_000)).toBe('1 day ago');
+    expect(ago(21 * 24 * 60 * 60_000)).toBe('21 days ago');
+  });
+
+  it('is null when the cache has no timestamp, so the banner can fall back', () => {
+    expect(cacheAgeText(null, now)).toBeNull();
+    expect(cacheAgeText(undefined, now)).toBeNull();
+  });
+
+  it('never reports a negative age from a clock that moved backwards', () => {
+    expect(cacheAgeText(now + 60_000, now)).toBe('just now');
   });
 });

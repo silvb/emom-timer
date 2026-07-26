@@ -1,4 +1,5 @@
 import { For, Show } from 'solid-js';
+import { signOut } from '../auth.jsx';
 import { isRest } from '../timer.js';
 import { describeSlot } from '../render.js';
 import ExerciseLine from '../components/ExerciseLine.jsx';
@@ -65,6 +66,11 @@ export default function ScheduleView({ workouts, onSelect }) {
             </ul>
           </section>
         </Show>
+
+        {/* The only way out of the session. Deliberately at the bottom of the
+            schedule screen and nowhere near the detail or active screens:
+            signing out by accident mid-workout would end the workout. */}
+        <button class="sign-out-btn" onClick={() => signOut()}>Sign out</button>
       </div>
     </div>
   );

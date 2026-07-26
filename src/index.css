@@ -156,6 +156,29 @@ html, body {
   line-height: 1.4;
 }
 
+/* Pushed to the bottom of the schedule screen by margin-top: auto — the only
+   sign-out affordance in the app, and it should never compete with a workout
+   card for a thumb. */
+.sign-out-btn {
+  align-self: center;
+  margin-top: auto;
+  padding: 20px 12px 4px;
+  background: none;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.sign-out-btn:hover {
+  opacity: 1;
+}
+
 /* ── DETAIL ── */
 
 .detail-view {
@@ -538,6 +561,26 @@ html, body {
 .active-view .ex-weight-sep,
 .active-view .ex-side {
   color: rgba(240, 236, 228, 0.75);
+}
+
+/* Bebas Neue is imported at a single weight, so the `font-weight: 700` on
+   .ex-weight-current can only render as synthetic faux-bold: at 40-60px on a
+   saturated background that is roughly 4px and a smudge between the weight on
+   the bar and the three that are not. De-emphasise the others instead —
+   opacity reads at arm's length whatever the font's weight axis does.
+
+   Scoped to .active-view deliberately. The schedule and detail screens call
+   describeSlot(slot, null), and weightParts() highlights nothing for a null
+   round (highlight = -1), so *every* weight there is non-current — an unscoped
+   rule would dim all of them and emphasise nothing. Inside .active-view the
+   round index is always a real number, so exactly one weight is current. */
+.active-view .ex-weight {
+  opacity: 0.5;
+}
+
+.active-view .ex-weight-current {
+  opacity: 1;
+  font-size: 1.15em;
 }
 
 /* ── LOGIN ── */

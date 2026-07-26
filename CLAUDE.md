@@ -54,6 +54,8 @@ SolidJS single-page app. No router library — navigation is a `view` signal in 
 - `prescriptions` is **append-only**: one row per change, and that row history is the user's training journal. There is no update or delete RLS policy — the app only ever `select`s and `insert`s. `current_prescriptions` exposes just the latest row per exercise.
 - `movement` groups exercise variants together for trend analysis (e.g. different Squat variants share a movement)
 - Slot `side`: `alternating` (both sides done within the minute) or `per_round` (left on even `roundIndex`, right on odd — round 1 is left); whether a slot needs a side at all is determined by the exercise's `unilateral` flag, enforced by the `check_slot_shape` DB trigger
+- `exercises`, `workouts` and `workout_slots` are **read-only to `authenticated`** (`owner_read`, select only — see `0006_narrow_policies.sql`). The client never writes them. Structural changes are dashboard SQL run as the service role, which bypasses RLS; adding a write policy back to the client is not the way to make one.
+- Edit-form rules live in `prescriptionFormError` (`model.js`), not in the sheet, so they are unit-testable. It takes the raw input **strings**: `Number('')` is `0` and `0` is a legitimate bodyweight prescription, so blank fields must be caught before any coercion.
 
 ## Gotchas
 

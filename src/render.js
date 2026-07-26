@@ -32,6 +32,27 @@ export function weightParts(exercise, roundIndex) {
   return values.map((value, i) => ({ value, current: i === highlight }));
 }
 
+// How old the cached programme is, for the offline banner. Coarse on purpose:
+// the only question it has to answer is "is this yesterday's programme or last
+// month's?" — the answer decides whether the weights on screen can be trusted.
+// Returns null when the age is unknown, so the caller can fall back.
+export function cacheAgeText(at, now = Date.now()) {
+  if (typeof at !== 'number' || !Number.isFinite(at)) return null;
+
+  const seconds = Math.max(0, Math.round((now - at) / 1000));
+  if (seconds < 60) return 'just now';
+
+  const plural = (n, unit) => `${n} ${unit}${n === 1 ? '' : 's'} ago`;
+
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return plural(minutes, 'minute');
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return plural(hours, 'hour');
+
+  return plural(Math.floor(hours / 24), 'day');
+}
+
 export function describeSlot(slot, roundIndex) {
   return {
     reps: repsText(slot),

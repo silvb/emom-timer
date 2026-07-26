@@ -23,7 +23,9 @@ supabase.auth
 // signals live for the same lifetime with no disposal either.
 supabase.auth.onAuthStateChange((_event, next) => setSession(next));
 
-export const useSession = () => session;
+// No useSession() accessor: LoginGate is the only thing that has ever needed to
+// read the session, and it closes over the signal directly. Export it again the
+// day a second consumer exists.
 export const signOut = () => supabase.auth.signOut();
 
 export function LoginGate(props) {

@@ -1,5 +1,6 @@
 import { createSignal, createMemo, For, Show } from 'solid-js';
 import { savePrescription } from '../db.js';
+import { prescriptionFormError } from '../model.js';
 
 // Bottom sheet for editing the reps/weights of a single exercise. Prescriptions
 // are append-only (see db.js) and are keyed by exercise slug, not by slot, so
@@ -48,40 +49,16 @@ export default function EditSlotSheet(props) {
       .map((w) => w.title);
   });
 
-  function validationError() {
-    // Number('') is 0, not NaN — an emptied field must never be read as a
-    // deliberate zero. Check for blank strings before any Number() coercion,
-    // for weights AND reps, even though the reps floor of 1 currently masks
-    // this for reps (defense in depth: don't rely on that incidental cover).
-    if (weights().some((w) => w.trim() === '')) {
-      return 'Enter a weight for every round.';
-    }
-    if (repsMin().trim() === '' || repsMax().trim() === '') {
-      return 'Enter a value for reps.';
-    }
-
-    const parsedWeights = weights().map(Number);
-    if (parsedWeights.some((w) => Number.isNaN(w) || w < 0)) {
-      return 'Every weight must be a number of 0 or more.';
-    }
-    if (isRampUp() && parsedWeights.length !== exercise().rounds) {
-      return `This ramp needs exactly ${exercise().rounds} weights.`;
-    }
-
-    const min = Number(repsMin());
-    const max = Number(repsMax());
-    // reps_min/reps_max are `int` columns in Postgres — a 5.5 from an
-    // over-stepped input passes every check above but fails at the database
-    // with an opaque "invalid input syntax for type integer", so catch it here.
-    if (!Number.isInteger(min) || min < 1) {
-      return 'Reps must be a whole number of 1 or more.';
-    }
-    if (!Number.isInteger(max) || max < min) {
-      return 'Max reps must be a whole number greater than or equal to min reps.';
-    }
-
-    return null;
-  }
+  // The rules themselves live in model.js so they can be unit tested without a
+  // DOM; this only gathers the current field values.
+  const validationError = () =>
+    prescriptionFormError({
+      type: type(),
+      rounds: exercise().rounds,
+      repsMin: repsMin(),
+      repsMax: repsMax(),
+      weights: weights(),
+    });
 
   async function save() {
     const error = validationError();

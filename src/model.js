@@ -95,3 +95,51 @@ export function validateWorkout(workout) {
 
   return problems;
 }
+
+// The last check between a fat-fingered phone input and a permanent row in an
+// append-only journal — nothing downstream can correct a bad save, only append
+// after it. Lives here, next to validateWorkout, because it enforces the same
+// two invariants ("a ramp has one weight per round, everything else has exactly
+// one") one step earlier, on the raw form strings; the two must never drift.
+//
+// Takes strings deliberately: '' coerces to 0 through Number(), and a weight of
+// 0 is legitimate (bodyweight movements), so an emptied field and a deliberate
+// zero are indistinguishable after coercion. The blank checks have to happen
+// before any Number() call.
+//
+// Returns a human-readable message, or null when the input is safe to save.
+export function prescriptionFormError({ type, rounds, repsMin, repsMax, weights }) {
+  const weightStrings = (weights ?? []).map((w) => String(w ?? ''));
+
+  if (weightStrings.length === 0 || weightStrings.some((w) => w.trim() === '')) {
+    return 'Enter a weight for every round.';
+  }
+  if (String(repsMin ?? '').trim() === '' || String(repsMax ?? '').trim() === '') {
+    return 'Enter a value for reps.';
+  }
+
+  const parsedWeights = weightStrings.map(Number);
+  if (parsedWeights.some((w) => Number.isNaN(w) || w < 0)) {
+    return 'Every weight must be a number of 0 or more.';
+  }
+  if (type === 'ramp_up' && parsedWeights.length !== rounds) {
+    return `This ramp needs exactly ${rounds} weights.`;
+  }
+  if (type !== 'ramp_up' && parsedWeights.length !== 1) {
+    return 'This exercise takes a single weight.';
+  }
+
+  const min = Number(repsMin);
+  const max = Number(repsMax);
+  // reps_min/reps_max are `int` columns in Postgres — a 5.5 from an
+  // over-stepped input passes every check above but fails at the database with
+  // an opaque "invalid input syntax for type integer", so catch it here.
+  if (!Number.isInteger(min) || min < 1) {
+    return 'Reps must be a whole number of 1 or more.';
+  }
+  if (!Number.isInteger(max) || max < min) {
+    return 'Max reps must be a whole number greater than or equal to min reps.';
+  }
+
+  return null;
+}

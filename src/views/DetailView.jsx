@@ -10,10 +10,13 @@ export default function DetailView(props) {
 
   // Plain slots (Rest, Carry, Skip) have no prescription row and never open the
   // editor. Also guard against a slot whose exercise reference is gone —
-  // validateWorkout() already anticipates that shape (model.js).
+  // validateWorkout() already anticipates that shape (model.js). The tappable
+  // class is driven off the same predicate: a row that looks tappable and does
+  // nothing reads as a broken app, mid-workout, on a phone.
+  const isEditable = (slot) => Boolean(slot.exercise) && slot.exercise.type !== 'plain';
+
   function editSlot(slot) {
-    if (!slot.exercise) return;
-    if (slot.exercise.type === 'plain') return;
+    if (!isEditable(slot)) return;
     setEditingSlot(slot);
   }
 
@@ -46,7 +49,7 @@ export default function DetailView(props) {
             {(slot, i) => (
               <li
                 class="exercise-item"
-                classList={{ 'exercise-item-tappable': slot.exercise?.type !== 'plain' }}
+                classList={{ 'exercise-item-tappable': isEditable(slot) }}
                 onClick={() => editSlot(slot)}
               >
                 <span class="exercise-num">{String(i() + 1).padStart(2, '0')}</span>
@@ -74,14 +77,22 @@ export default function DetailView(props) {
         </Show>
       </div>
 
-      <Show when={editingSlot()}>
-        <EditSlotSheet
-          slot={editingSlot()}
-          workouts={props.workouts}
-          onClose={() => setEditingSlot(null)}
-          onSaved={props.onSaved}
-          onError={props.onError}
-        />
+      {/* keyed: the sheet captures its form state at creation from the slot it
+          was opened with. Without keying, a truthy-to-truthy slot swap would
+          keep the mounted sheet and show the previous exercise's reps and
+          weights under the new exercise's name. The backdrop makes that
+          unreachable today; it would stop being unreachable the moment the
+          list gains any other way to change slots. */}
+      <Show when={editingSlot()} keyed>
+        {(slot) => (
+          <EditSlotSheet
+            slot={slot}
+            workouts={props.workouts}
+            onClose={() => setEditingSlot(null)}
+            onSaved={props.onSaved}
+            onError={props.onError}
+          />
+        )}
       </Show>
     </div>
   );
