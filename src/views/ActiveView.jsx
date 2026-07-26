@@ -1,5 +1,7 @@
 import { createSignal, createEffect, onCleanup, Show } from 'solid-js';
 import { deriveTimerState } from '../timer.js';
+import { describeSlot } from '../render.js';
+import ExerciseLine from '../components/ExerciseLine.jsx';
 import { playWarningBeeps, playHalfwayBeep, playStartPing, playTenSecondWarning, playSuccessMelody } from '../audio.js';
 
 export default function ActiveView({ workout, colorMap, onCancel, onComplete }) {
@@ -122,7 +124,7 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
   const bgColor = () => {
     const s = state();
     if (phase() === 'countdown') return '#fafaf7';
-    return colorMap[s.exerciseName] || '#111';
+    return colorMap[s.slot.exercise.slug] || '#111';
   };
 
   const formatTime = (secs) => {
@@ -142,7 +144,7 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
           <div class="countdown-label">Get ready</div>
           <div class="countdown-number">{Math.ceil(state().countdownSeconds)}</div>
           <div class="countdown-first">
-            First up: <strong>{workout.exercises[0]}</strong>
+            First up: <strong><ExerciseLine parts={describeSlot(workout.slots[0], 0)} /></strong>
           </div>
         </div>
       </Show>
@@ -156,14 +158,14 @@ export default function ActiveView({ workout, colorMap, onCancel, onComplete }) 
           </div>
 
           <div class="running-center">
-            <div class="exercise-display">{state().exerciseName}</div>
+            <div class="exercise-display">
+              <ExerciseLine parts={describeSlot(state().slot, state().roundIndex)} />
+            </div>
             <div class="time-display">{formatTime(state().secondsLeftInRound)}</div>
             <div class="next-exercise-preview">
-              <Show
-                when={state().currentRound === state().totalRounds && state().exerciseIndex === workout.exercises.length - 1}
-                fallback={`Next: ${workout.exercises[(state().exerciseIndex + 1) % workout.exercises.length]}`}
-              >
-                Last round!
+              <Show when={state().next} fallback="Last round!">
+                {'Next: '}
+                <ExerciseLine parts={describeSlot(state().next.slot, state().next.roundIndex)} />
               </Show>
             </div>
             <div class="total-remaining">
