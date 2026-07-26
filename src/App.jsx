@@ -41,7 +41,7 @@ function Programme() {
 
   return (
     <>
-      <Show when={data()?.stale}>
+      <Show when={!data.error && data()?.stale}>
         <div class="stale-banner">Offline — showing your last saved workouts.</div>
       </Show>
 
