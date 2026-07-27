@@ -58,6 +58,19 @@ describe('shapeProgramme', () => {
     const b = p.workouts.find((w) => w.id === 'other').slots[0].exercise;
     expect(a).toBe(b);
   });
+
+  it('carries the archived flag onto the exercise', () => {
+    const r = rows();
+    r.exercises[0].archived = true;
+    const p = shapeProgramme(r.exercises, r.prescriptions, r.workouts, r.slots);
+    expect(p.exercises.sumo_deadlift.archived).toBe(true);
+  });
+
+  it('treats a missing archived column as not archived', () => {
+    const r = rows();
+    const p = shapeProgramme(r.exercises, r.prescriptions, r.workouts, r.slots);
+    expect(p.exercises.rest.archived).toBe(false);
+  });
 });
 
 describe('validateWorkout', () => {

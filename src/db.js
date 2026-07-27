@@ -6,7 +6,7 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient(url, key);
 
-const CACHE_KEY = 'emom.programme.v1';
+const CACHE_KEY = 'emom.programme.v2';
 
 export function writeCache(programme) {
   try {
