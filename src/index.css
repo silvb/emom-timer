@@ -1044,3 +1044,77 @@ html, body {
   text-align: left;
   cursor: pointer;
 }
+
+/* ── EXERCISE LIBRARY ── */
+
+.library-view {
+  min-height: 100%;
+}
+
+.library-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.library-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.library-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.library-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.library-item-archived {
+  opacity: 0.45;
+}
+
+.library-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.library-item-name {
+  font-size: 1rem;
+}
+
+.library-item-meta,
+.library-item-used {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.library-item-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.library-item-actions .secondary-btn,
+.danger-btn-inline {
+  flex: 0 0 auto;
+  width: auto;
+  margin-top: 0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+}
