@@ -43,5 +43,13 @@ $$;
 -- inert (RLS hides every row, so the guard raises first), but 0006 narrowed
 -- this schema's grants on purpose and leaving the default in place quietly
 -- widens it again.
+--
+-- Revoking PUBLIC is not sufficient on Supabase: the platform ships an
+-- `alter default privileges ... grant all on functions to anon, authenticated,
+-- service_role`, so a new function arrives with those three as *explicit*
+-- grantees rather than inheriting from PUBLIC. Verified against the live
+-- project — after `revoke ... from public` alone, `anon` still held EXECUTE.
+-- `anon` therefore has to be named.
 revoke all on function save_workout_slots(text, jsonb) from public;
+revoke all on function save_workout_slots(text, jsonb) from anon;
 grant execute on function save_workout_slots(text, jsonb) to authenticated;
