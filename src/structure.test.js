@@ -7,6 +7,12 @@ import {
   DAY_KEYS,
   exerciseFormError,
   workoutFormError,
+  usedByWorkouts,
+  lockedExerciseFields,
+  canHardDelete,
+  eligibleExercises,
+  defaultSide,
+  sideWarnings,
 } from './structure.js';
 
 describe('deriveSlug', () => {
@@ -196,5 +202,154 @@ describe('workoutFormError', () => {
     expect(
       workoutFormError({ ...valid(), id: 'squat_main', currentId: 'push_day' })
     ).toMatch(/already/i);
+  });
+});
+
+const ex = (over = {}) => ({
+  slug: 'zercher_squat',
+  movement: 'zercher_squat',
+  name: 'Zercher Squats',
+  type: 'ramp_up',
+  rounds: 4,
+  unilateral: false,
+  archived: false,
+  prescription: { reps_min: 10, reps_max: 10, weights: [45, 50, 60, 60] },
+  ...over,
+});
+
+const workoutWith = (exercise, over = {}) => ({
+  id: 'squat_main',
+  title: 'Squat Main',
+  rounds: 4,
+  slots: [{ position: 1, side: null, exercise }],
+  ...over,
+});
+
+describe('usedByWorkouts', () => {
+  it('names every workout holding a slot for the exercise', () => {
+    const e = ex();
+    const workouts = [
+      workoutWith(e),
+      workoutWith(e, { id: 'other', title: 'Other Day' }),
+      { id: 'empty', title: 'Empty', rounds: 4, slots: [] },
+    ];
+    expect(usedByWorkouts('zercher_squat', workouts)).toEqual(['Squat Main', 'Other Day']);
+  });
+
+  it('tolerates a slot whose exercise reference is missing', () => {
+    const workouts = [{ id: 'w', title: 'W', rounds: 4, slots: [{ position: 1, exercise: null }] }];
+    expect(usedByWorkouts('zercher_squat', workouts)).toEqual([]);
+  });
+});
+
+describe('lockedExerciseFields', () => {
+  it('locks type and rounds when a prescription exists', () => {
+    const locked = lockedExerciseFields(ex(), []);
+    expect(locked.type).toMatch(/prescription/i);
+    expect(locked.rounds).toMatch(/prescription/i);
+  });
+
+  it('locks all three when the exercise is used by a workout', () => {
+    const e = ex({ prescription: null });
+    const locked = lockedExerciseFields(e, [workoutWith(e)]);
+    expect(locked.type).toMatch(/Squat Main/);
+    expect(locked.rounds).toMatch(/Squat Main/);
+    expect(locked.unilateral).toMatch(/Squat Main/);
+  });
+
+  it('leaves every field free for an unused exercise with no prescription', () => {
+    expect(lockedExerciseFields(ex({ prescription: null }), [])).toEqual({
+      type: null,
+      rounds: null,
+      unilateral: null,
+    });
+  });
+
+  it('does not lock unilateral on prescription alone', () => {
+    expect(lockedExerciseFields(ex(), []).unilateral).toBeNull();
+  });
+});
+
+describe('canHardDelete', () => {
+  it('is false when a prescription exists', () => {
+    expect(canHardDelete(ex(), [])).toBe(false);
+  });
+
+  it('is false when a workout uses it', () => {
+    const e = ex({ prescription: null });
+    expect(canHardDelete(e, [workoutWith(e)])).toBe(false);
+  });
+
+  it('is true when nothing references it', () => {
+    expect(canHardDelete(ex({ prescription: null }), [])).toBe(true);
+  });
+});
+
+describe('eligibleExercises', () => {
+  const pool = () => [
+    ex({ slug: 'zercher_squat', name: 'Zercher Squats', type: 'ramp_up', rounds: 4 }),
+    ex({ slug: 'press_3r', name: 'Press', type: 'ramp_up', rounds: 3 }),
+    ex({ slug: 'rest', name: 'Rest', type: 'plain', rounds: null, prescription: null }),
+    ex({ slug: 'old_curl', name: 'Old Curl', type: 'fixed', rounds: null, archived: true }),
+  ];
+
+  it('drops archived exercises', () => {
+    const names = eligibleExercises(pool(), { rounds: 4 }).map((e) => e.slug);
+    expect(names).not.toContain('old_curl');
+  });
+
+  it('drops ramps whose round count does not match the workout', () => {
+    const names = eligibleExercises(pool(), { rounds: 4 }).map((e) => e.slug);
+    expect(names).toContain('zercher_squat');
+    expect(names).not.toContain('press_3r');
+  });
+
+  it('keeps non-ramp exercises regardless of round count', () => {
+    expect(eligibleExercises(pool(), { rounds: 7 }).map((e) => e.slug)).toContain('rest');
+  });
+
+  it('sorts by display name', () => {
+    expect(eligibleExercises(pool(), { rounds: 4 }).map((e) => e.name)).toEqual([
+      'Rest',
+      'Zercher Squats',
+    ]);
+  });
+
+  it('accepts a plain object or a Map-style record of exercises', () => {
+    const record = Object.fromEntries(pool().map((e) => [e.slug, e]));
+    expect(eligibleExercises(record, { rounds: 4 }).map((e) => e.slug)).toEqual([
+      'rest',
+      'zercher_squat',
+    ]);
+  });
+});
+
+describe('defaultSide', () => {
+  it('is alternating for a unilateral exercise', () => {
+    expect(defaultSide(ex({ unilateral: true }))).toBe('alternating');
+  });
+
+  it('is null for a bilateral exercise', () => {
+    expect(defaultSide(ex({ unilateral: false }))).toBeNull();
+  });
+});
+
+describe('sideWarnings', () => {
+  const unilateral = ex({ slug: 'gorilla_row', name: 'Gorilla Rows', unilateral: true, type: 'fixed', rounds: null });
+
+  it('warns about a per_round slot in an odd-round workout', () => {
+    const w = { id: 'w', title: 'W', rounds: 3, slots: [{ position: 1, side: 'per_round', exercise: unilateral }] };
+    expect(sideWarnings(w)).toHaveLength(1);
+    expect(sideWarnings(w)[0]).toMatch(/Gorilla Rows/);
+  });
+
+  it('stays silent in an even-round workout', () => {
+    const w = { id: 'w', title: 'W', rounds: 4, slots: [{ position: 1, side: 'per_round', exercise: unilateral }] };
+    expect(sideWarnings(w)).toEqual([]);
+  });
+
+  it('stays silent for alternating slots', () => {
+    const w = { id: 'w', title: 'W', rounds: 3, slots: [{ position: 1, side: 'alternating', exercise: unilateral }] };
+    expect(sideWarnings(w)).toEqual([]);
   });
 });

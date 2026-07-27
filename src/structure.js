@@ -135,3 +135,81 @@ export function workoutFormError({
 
   return roundsError(rounds, { required: true, label: 'this workout repeats for' });
 }
+
+// --- Reference checks -------------------------------------------------------
+// The database already refuses these (on delete restrict, check_exercise_update),
+// but a Postgres error string is not something to show a user mid-planning.
+// These produce the same verdict early, with the blocking workout named.
+
+export function usedByWorkouts(slug, workouts) {
+  return workouts
+    .filter((w) => w.slots.some((s) => s.exercise?.slug === slug))
+    .map((w) => w.title);
+}
+
+// check_exercise_update (0002) fires on update of rounds, type or unilateral
+// and re-validates every prescription and slot already attached. The result is
+// that some edits have no valid statement order at all: dropping a ramp from 4
+// rounds to 3 is rejected because the existing prescription holds 4 weights,
+// and writing a 3-weight prescription first is rejected because the exercise
+// still says 4. That is design decision D4 — a different round count is a
+// different exercise — so the UI locks the field and offers duplication.
+export function lockedExerciseFields(exercise, workouts) {
+  const users = usedByWorkouts(exercise.slug, workouts);
+  const inUse = users.length > 0
+    ? `In use by ${users.join(', ')}. Duplicate this exercise to change it.`
+    : null;
+  const prescribed = exercise.prescription
+    ? 'It already has a prescription. Duplicate this exercise to change it.'
+    : null;
+
+  return {
+    // The weight-array shape is derived from type and rounds, so an existing
+    // prescription pins both.
+    type: inUse ?? prescribed,
+    rounds: inUse ?? prescribed,
+    // Laterality only constrains slots — a prescription says nothing about sides.
+    unilateral: inUse,
+  };
+}
+
+export function canHardDelete(exercise, workouts) {
+  return !exercise.prescription && usedByWorkouts(exercise.slug, workouts).length === 0;
+}
+
+// --- Slot construction ------------------------------------------------------
+
+// Accepts either the array form or the slug-keyed record shapeProgramme
+// produces, because the library screen holds one and the add-slot picker the
+// other, and forcing a conversion at each call site is how they drift.
+export function eligibleExercises(exercises, workout) {
+  const list = Array.isArray(exercises) ? exercises : Object.values(exercises ?? {});
+
+  return list
+    .filter((e) => !e.archived)
+    // Invariant 2 (check_slot_shape): a ramp only fits a workout whose round
+    // count equals its own. Filtering here means the picker cannot offer a
+    // choice the database would reject.
+    .filter((e) => e.type !== 'ramp_up' || e.rounds === workout.rounds)
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Invariant 4 (check_slot_shape): a unilateral exercise's slot must carry a
+// side, and a bilateral one must not.
+export function defaultSide(exercise) {
+  return exercise.unilateral ? 'alternating' : null;
+}
+
+// Invariant 5 is warn-only by design: balancing a per_round slot across an odd
+// round count would require remembering which side was started last session,
+// which the app deliberately does not record.
+export function sideWarnings(workout) {
+  if (workout.rounds % 2 === 0) return [];
+
+  return workout.slots
+    .filter((s) => s.side === 'per_round')
+    .map(
+      (s) =>
+        `${s.exercise?.name ?? 'This exercise'} alternates sides per round, but ${workout.rounds} rounds is odd — one side gets an extra set.`
+    );
+}
