@@ -69,3 +69,76 @@ export async function savePrescription({ exercise_slug, reps_min, reps_max, weig
   });
   if (error) throw error;
 }
+
+// --- Structural writes ------------------------------------------------------
+// Phase 2. Migration 0008 re-granted insert/update/delete on these three
+// tables; before it, they were select-only and every structural change was
+// dashboard SQL. The invariant triggers from 0001/0002 still police every one
+// of these writes, so a rejection here is expected behaviour, not a bug — the
+// callers surface the message rather than swallowing it.
+
+function throwIf(error) {
+  if (error) throw error;
+}
+
+export async function createExercise({ slug, movement, name, type, rounds, unilateral }) {
+  const { error } = await supabase.from('exercises').insert({
+    slug,
+    movement,
+    name,
+    type,
+    // ramp_rounds_present (0001) requires rounds to be null for every kind
+    // except ramp_up, so an empty form field must become null, not 0.
+    rounds: type === 'ramp_up' ? rounds : null,
+    unilateral,
+  });
+  throwIf(error);
+}
+
+export async function updateExercise(slug, fields) {
+  const { error } = await supabase.from('exercises').update(fields).eq('slug', slug);
+  throwIf(error);
+}
+
+export async function setExerciseArchived(slug, archived) {
+  const { error } = await supabase.from('exercises').update({ archived }).eq('slug', slug);
+  throwIf(error);
+}
+
+// Only ever succeeds for an exercise with no prescriptions and no slots: both
+// foreign keys are `on delete restrict`. canHardDelete() in structure.js is
+// the pre-check that keeps this from being offered when it cannot work.
+export async function deleteExercise(slug) {
+  const { error } = await supabase.from('exercises').delete().eq('slug', slug);
+  throwIf(error);
+}
+
+export async function createWorkout({ id, title, day, rounds, position }) {
+  const { error } = await supabase.from('workouts').insert({ id, title, day, rounds, position });
+  throwIf(error);
+}
+
+export async function updateWorkout(id, fields) {
+  const { error } = await supabase.from('workouts').update(fields).eq('id', id);
+  throwIf(error);
+}
+
+// workout_slots cascades; exercises and their prescriptions do not.
+export async function deleteWorkout(id) {
+  const { error } = await supabase.from('workouts').delete().eq('id', id);
+  throwIf(error);
+}
+
+// The one RPC in the app. A slot rewrite is a delete plus an insert, and over
+// the REST layer those would be two requests with no transaction between them
+// — a failure after the delete would leave the workout with no slots at all.
+// save_workout_slots (migration 0010) runs both inside one function body, so
+// they commit together or not at all. Positions are renumbered from array
+// order server-side; send the list in display order and nothing else.
+export async function saveWorkoutSlots(workoutId, slots) {
+  const { error } = await supabase.rpc('save_workout_slots', {
+    p_workout_id: workoutId,
+    p_slots: slots.map((s) => ({ exercise_slug: s.exercise_slug, side: s.side ?? null })),
+  });
+  throwIf(error);
+}
