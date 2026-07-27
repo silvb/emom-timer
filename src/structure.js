@@ -32,3 +32,94 @@ export function moveItem(list, index, delta) {
 export function nextPosition(items) {
   return items.reduce((max, item) => Math.max(max, item.position ?? 0), 0) + 1;
 }
+
+export const EXERCISE_TYPES = ['ramp_up', 'rep_range', 'fixed', 'plain'];
+
+export const DAY_KEYS = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+];
+
+const SLUG_PATTERN = /^[a-z0-9_]+$/;
+
+// Round counts arrive as strings straight from the form. Number('') is 0, so
+// an emptied field would pass a bare `> 0` check on the coerced value — the
+// blank test has to come first, exactly as in prescriptionFormError.
+function roundsError(value, { required, label }) {
+  const raw = String(value ?? '').trim();
+
+  if (raw === '') {
+    return required ? `Enter how many rounds ${label}.` : null;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) return 'Rounds must be a number.';
+  if (!Number.isInteger(parsed)) return 'Rounds must be a whole number.';
+  if (parsed < 1) return `Enter how many rounds ${label}.`;
+  return null;
+}
+
+export function exerciseFormError({
+  name,
+  slug,
+  movement,
+  type,
+  rounds,
+  existingSlugs = [],
+  isNew = true,
+}) {
+  if (String(name ?? '').trim() === '') return 'Enter a name.';
+  if (String(movement ?? '').trim() === '') return 'Choose or enter a movement.';
+
+  const slugValue = String(slug ?? '').trim();
+  if (!SLUG_PATTERN.test(slugValue)) {
+    return 'The identifier may only contain lowercase letters, digits and underscores.';
+  }
+  if (isNew && existingSlugs.includes(slugValue)) {
+    return `The identifier "${slugValue}" is already in use.`;
+  }
+
+  if (!EXERCISE_TYPES.includes(type)) return 'Choose a kind.';
+
+  if (type === 'ramp_up') {
+    const error = roundsError(rounds, { required: true, label: 'this ramp climbs over' });
+    if (error) return error;
+  } else if (String(rounds ?? '').trim() !== '') {
+    // Mirrors the ramp_rounds_present CHECK in 0001: a round count on a
+    // non-ramp exercise is rejected by the database, so catch it here where
+    // the message can say why.
+    return 'Only ramp-up exercises can have a round count.';
+  }
+
+  return null;
+}
+
+export function workoutFormError({
+  id,
+  title,
+  day,
+  rounds,
+  existingIds = [],
+  isNew = true,
+}) {
+  if (String(title ?? '').trim() === '') return 'Enter a title.';
+
+  const idValue = String(id ?? '').trim();
+  if (!SLUG_PATTERN.test(idValue)) {
+    return 'The identifier may only contain lowercase letters, digits and underscores.';
+  }
+  if (isNew && existingIds.includes(idValue)) {
+    return `The identifier "${idValue}" is already in use.`;
+  }
+
+  if (day !== null && day !== undefined && day !== '' && !DAY_KEYS.includes(day)) {
+    return 'Choose a valid day, or leave it unassigned.';
+  }
+
+  return roundsError(rounds, { required: true, label: 'this workout repeats for' });
+}
