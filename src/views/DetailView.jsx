@@ -88,23 +88,21 @@ export default function DetailView(props) {
       ? sideWarnings({ rounds: props.workout.rounds, slots: draft() })
       : sideWarnings(props.workout);
 
+  // The save and the refetch that follows it fail for different reasons, and
+  // the user needs to be told which one happened: a save failure means
+  // nothing changed, so the draft stays open and "try again" is the right
+  // instruction. A refetch failure means the write already landed — the
+  // draft is stale work, not pending work, so it clears like the success
+  // path, and the message must not suggest retrying the save itself.
   async function saveSlots() {
     setBusy(true);
     setEditError(null);
+
     try {
       await saveWorkoutSlots(
         props.workout.id,
         draft().map((s) => ({ exercise_slug: s.exercise.slug, side: s.side }))
       );
-      // Await the refetch before clearing the draft: onSaved (createResource's
-      // refetch) is async and data() still holds the pre-save slots while it
-      // is in flight. Clearing the draft first would show that stale order
-      // with busy() already false — "Edit exercises" tappable again — so a
-      // second edit started in that window would be built on top of a list
-      // missing the change that's still landing, and saving it would silently
-      // revert edit #1.
-      await props.onSaved();
-      setDraft(null);
     } catch (e) {
       // save_workout_slots is atomic against a server-side rejection — no
       // partial write. It does not cover a connection dropped after commit,
@@ -112,9 +110,32 @@ export default function DetailView(props) {
       // is still safe either way: the payload is a whole-list replace, so
       // sending it again is idempotent.
       setEditError(`Nothing was changed. ${e.message || 'Try again.'}`);
-    } finally {
       setBusy(false);
+      return;
     }
+
+    // The save has committed by this point. Await the refetch before
+    // clearing the draft: onSaved (createResource's refetch) is async and
+    // data() still holds the pre-save slots while it is in flight. Clearing
+    // the draft first would show that stale order with busy() already false
+    // — "Edit exercises" tappable again — so a second edit started in that
+    // window would be built on top of a list missing the change that's still
+    // landing, and saving it would silently revert edit #1.
+    try {
+      await props.onSaved();
+    } catch (e) {
+      // This is a refresh problem, not a write problem: the save already
+      // succeeded, so the draft is cleared here too rather than left open
+      // for a "retry" that would just resend an identical, already-applied
+      // list.
+      setEditError(`Saved, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
+      setDraft(null);
+      setBusy(false);
+      return;
+    }
+
+    setDraft(null);
+    setBusy(false);
   }
 
   return (
