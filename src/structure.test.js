@@ -11,6 +11,7 @@ import {
   lockedExerciseFields,
   deleteBlockedReason,
   MAX_ROUNDS,
+  rampRoundsError,
   eligibleExercises,
   defaultSide,
   sideWarnings,
@@ -390,5 +391,39 @@ describe('sideWarnings', () => {
   it('stays silent for alternating slots', () => {
     const w = { id: 'w', title: 'W', rounds: 3, slots: [{ position: 1, side: 'alternating', exercise: unilateral }] };
     expect(sideWarnings(w)).toEqual([]);
+  });
+});
+
+describe('rampRoundsError', () => {
+  it('accepts a round count inside the cap', () => {
+    expect(rampRoundsError('4')).toBeNull();
+    expect(rampRoundsError(String(MAX_ROUNDS))).toBeNull();
+  });
+
+  it('rejects a round count above the cap', () => {
+    expect(rampRoundsError(String(MAX_ROUNDS + 1))).toMatch(/30 or fewer/);
+  });
+
+  // The form clamps its rendered weight-input count, so a value like this
+  // never renders a billion inputs — but the user must still be told the
+  // number they typed is not the number the form is using.
+  it('rejects a large finite integer that passes every other check', () => {
+    expect(rampRoundsError('1e9')).toMatch(/30 or fewer/);
+  });
+
+  it('rejects a blank field, which the form suppresses until save', () => {
+    expect(rampRoundsError('')).toMatch(/Enter how many rounds/);
+  });
+
+  it('agrees with exerciseFormError, which delegates to it', () => {
+    const base = {
+      name: 'Test',
+      slug: 'test',
+      movement: 'test',
+      type: 'ramp_up',
+      existingSlugs: [],
+    };
+    const rounds = String(MAX_ROUNDS + 1);
+    expect(exerciseFormError({ ...base, rounds })).toBe(rampRoundsError(rounds));
   });
 });

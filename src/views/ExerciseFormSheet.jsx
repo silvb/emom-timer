@@ -7,6 +7,7 @@ import {
   lockedExerciseFields,
   EXERCISE_TYPES,
   MAX_ROUNDS,
+  rampRoundsError,
 } from '../structure.js';
 
 const TYPE_LABELS = {
@@ -102,6 +103,18 @@ export default function ExerciseFormSheet(props) {
   // every keystroke, before validation has had a chance to reject the value.
   const weightCount = () =>
     type() === 'ramp_up' ? Math.min(MAX_ROUNDS, Math.max(1, Number(rounds()) || 1)) : 1;
+
+  // Shown under the Rounds field while typing, because weightCount() clamps.
+  // Without this the clamp is silent: type 500 and thirty inputs appear with
+  // nothing to explain why the form disagrees with the number on screen. A
+  // blank field is deliberately excluded — it is a save-time error, and
+  // flagging it the moment the kind is switched to ramp-up would put a red
+  // message under a field the user has not reached yet.
+  const roundsFieldError = () => {
+    if (type() !== 'ramp_up') return null;
+    if (String(rounds()).trim() === '') return null;
+    return rampRoundsError(rounds());
+  };
 
   function changeName(value) {
     setName(value);
@@ -368,6 +381,9 @@ export default function ExerciseFormSheet(props) {
             />
             <Show when={locks().rounds}>
               <p class="edit-locked">{locks().rounds}</p>
+            </Show>
+            <Show when={roundsFieldError()}>
+              <p class="edit-error" role="alert">{roundsFieldError()}</p>
             </Show>
           </div>
         </Show>

@@ -73,6 +73,15 @@ function roundsError(value, { required, label }) {
   return null;
 }
 
+// The ramp round-count rule on its own, so the form can show it live under the
+// field instead of only at save time. Without it the clamp in the form's weight
+// input count silently disagrees with what was typed: enter 500 and thirty
+// inputs render, with nothing on screen explaining the other 470 until Save.
+// exerciseFormError delegates here so the two can never drift apart.
+export function rampRoundsError(rounds) {
+  return roundsError(rounds, { required: true, label: 'this ramp climbs over' });
+}
+
 export function exerciseFormError({
   name,
   slug,
@@ -102,7 +111,7 @@ export function exerciseFormError({
   if (!EXERCISE_TYPES.includes(type)) return 'Choose a kind.';
 
   if (type === 'ramp_up') {
-    const error = roundsError(rounds, { required: true, label: 'this ramp climbs over' });
+    const error = rampRoundsError(rounds);
     if (error) return error;
   } else if (String(rounds ?? '').trim() !== '') {
     // Mirrors the ramp_rounds_present CHECK in 0001: a round count on a
