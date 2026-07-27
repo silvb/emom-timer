@@ -957,3 +957,70 @@ html, body {
   opacity: 0.4;
   cursor: default;
 }
+
+.detail-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.exercise-item-editing {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slot-move {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.slot-move-btn {
+  width: 2rem;
+  height: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slot-move-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.slot-side-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.slot-remove-btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #ff7a7a;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.slot-warning {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid #e0b341;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}

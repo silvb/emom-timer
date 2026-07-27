@@ -80,9 +80,11 @@ function Programme() {
           <DetailView
             workout={selectedWorkout()}
             workouts={workouts()}
+            exercises={data().programme.exercises}
             stale={stale()}
             onStart={startWorkout}
             onBack={() => setView('schedule')}
+            onEditWorkout={(w) => setWorkoutForm({ workout: w })}
             onSaved={refetch}
             onError={(m) => setToast(m)}
           />
