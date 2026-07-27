@@ -29,10 +29,13 @@ export default function ExerciseFormSheet(props) {
   const mode = props.mode;
   const isEdit = mode === 'edit';
 
-  const [name, setName] = createSignal(
-    mode === 'duplicate' ? `${source.name} (new)` : (source?.name ?? '')
-  );
-  const [slug, setSlug] = createSignal(isEdit ? source.slug : '');
+  // Duplicate mode's name is pre-filled, not typed, so its slug has to be
+  // derived from that same initial value up front — otherwise the identifier
+  // sits blank until the user happens to retype the name, and Save fails on a
+  // field they were never prompted to fill.
+  const initialName = mode === 'duplicate' ? `${source.name} (new)` : (source?.name ?? '');
+  const [name, setName] = createSignal(initialName);
+  const [slug, setSlug] = createSignal(isEdit ? source.slug : deriveSlug(initialName));
   const [slugTouched, setSlugTouched] = createSignal(isEdit);
   const [movement, setMovement] = createSignal(source?.movement ?? '');
   const [movementIsNew, setMovementIsNew] = createSignal(false);
@@ -69,10 +72,6 @@ export default function ExerciseFormSheet(props) {
     if (!slugTouched()) setSlug(deriveSlug(value));
   }
 
-  function setWeightAt(index, value) {
-    setWeights((current) => current.map((w, i) => (i === index ? value : w)));
-  }
-
   // Keep the weight field count in step with the round count while typing, so
   // a ramp always shows exactly as many inputs as it will need rows for.
   const syncedWeights = createMemo(() => {
@@ -80,6 +79,18 @@ export default function ExerciseFormSheet(props) {
     const current = weights();
     return Array.from({ length: count }, (_, i) => current[i] ?? '');
   });
+
+  // Writes go through the synced array, not the raw signal: `weights` starts
+  // at length 1 and is never resized on its own, so a plain `.map` over it
+  // can't reach index 2 or 3 of a 4-round ramp — the keystroke would be
+  // silently dropped while the rendered <Index> (keyed by position) kept
+  // showing the typed character, since its source is `syncedWeights()`, not
+  // `weights()`. Reading through `syncedWeights()` first pads the array to the
+  // rendered length before the positional write lands, matching how
+  // `EditSlotSheet.jsx` sizes its array up front in `initialWeights()`.
+  function setWeightAt(index, value) {
+    setWeights(syncedWeights().map((w, i) => (i === index ? value : w)));
+  }
 
   function validate() {
     const shape = exerciseFormError({
@@ -93,9 +104,13 @@ export default function ExerciseFormSheet(props) {
     });
     if (shape) return shape;
 
-    // A 'plain' exercise never gets a prescription — check_prescription_shape
-    // raises if one is written for it.
-    if (!needsPrescription()) return null;
+    // The prescription fields render only on create/duplicate (needsPrescription()
+    // && !isEdit) — validating them while editing would block Save on input the
+    // user cannot see or correct, including a pure name/movement rename on an
+    // exercise that has no prescription yet. A 'plain' exercise never gets a
+    // prescription either way — check_prescription_shape raises if one is
+    // written for it.
+    if (!needsPrescription() || isEdit) return null;
 
     return prescriptionFormError({
       type: type(),
@@ -164,7 +179,7 @@ export default function ExerciseFormSheet(props) {
 
   return (
     <div class="edit-sheet-backdrop" onClick={props.onClose}>
-      <div class="edit-sheet edit-sheet-tall" onClick={(e) => e.stopPropagation()}>
+      <div class="edit-sheet" onClick={(e) => e.stopPropagation()}>
         <h2 class="edit-sheet-title">
           {mode === 'create' ? 'New exercise' : mode === 'duplicate' ? 'Duplicate exercise' : source.name}
         </h2>
@@ -345,6 +360,7 @@ export default function ExerciseFormSheet(props) {
         <Show when={isEdit && (locks().type || locks().rounds || locks().unilateral)}>
           <button
             class="secondary-btn"
+            disabled={busy()}
             onClick={() => props.onDuplicate?.(source)}
           >
             Duplicate as new exercise

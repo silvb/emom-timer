@@ -1119,11 +1119,6 @@ html, body {
   font-size: 0.8rem;
 }
 
-.edit-sheet-tall {
-  max-height: 88vh;
-  overflow-y: auto;
-}
-
 .edit-subhead {
   margin: 1.5rem 0 0.5rem;
   font-size: 0.8rem;
