@@ -47,6 +47,14 @@ export const DAY_KEYS = [
 
 const SLUG_PATTERN = /^[a-z0-9_]+$/;
 
+// No database constraint caps a round count, but the exercise form renders one
+// weight input per round while the field is being typed, so an unbounded value
+// is a rendering hazard rather than a data one: '1e9' is a finite integer that
+// passes every other check here and would ask the browser for a billion inputs.
+// 30 rounds is already a 30-minute single-exercise EMOM — far past anything the
+// programme uses.
+export const MAX_ROUNDS = 30;
+
 // Round counts arrive as strings straight from the form. Number('') is 0, so
 // an emptied field would pass a bare `> 0` check on the coerced value — the
 // blank test has to come first, exactly as in prescriptionFormError.
@@ -61,6 +69,7 @@ function roundsError(value, { required, label }) {
   if (!Number.isFinite(parsed)) return 'Rounds must be a number.';
   if (!Number.isInteger(parsed)) return 'Rounds must be a whole number.';
   if (parsed < 1) return `Enter how many rounds ${label}.`;
+  if (parsed > MAX_ROUNDS) return `Rounds must be ${MAX_ROUNDS} or fewer.`;
   return null;
 }
 
@@ -173,8 +182,22 @@ export function lockedExerciseFields(exercise, workouts) {
   };
 }
 
-export function canHardDelete(exercise, workouts) {
-  return !exercise.prescription && usedByWorkouts(exercise.slug, workouts).length === 0;
+// Both foreign keys into `exercises` are `on delete restrict`, so a delete with
+// anything attached fails in Postgres with a constraint name and no hint about
+// which workout or which journal entry is holding it. The spec requires the
+// refusal to name what is blocking it, so every blocker is listed — a slot and
+// a prescription can block the same exercise at once, and hearing about only
+// the first means deleting the workout and being refused a second time.
+// Returns null when the delete can go ahead.
+export function deleteBlockedReason(exercise, workouts) {
+  const blockers = [];
+
+  const users = usedByWorkouts(exercise.slug, workouts);
+  if (users.length > 0) blockers.push(`it is still used by ${users.join(', ')}`);
+  if (exercise.prescription) blockers.push('it has a saved prescription');
+
+  if (blockers.length === 0) return null;
+  return `${exercise.name} can't be deleted: ${blockers.join(', and ')}. Archive it instead.`;
 }
 
 // --- Slot construction ------------------------------------------------------

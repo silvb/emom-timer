@@ -1,5 +1,5 @@
 import { createSignal, createMemo, For, Show } from 'solid-js';
-import { usedByWorkouts, canHardDelete } from '../structure.js';
+import { usedByWorkouts, deleteBlockedReason } from '../structure.js';
 import { setExerciseArchived, deleteExercise } from '../db.js';
 import ExerciseFormSheet from './ExerciseFormSheet.jsx';
 
@@ -14,6 +14,7 @@ export default function ExerciseLibraryView(props) {
   const [showArchived, setShowArchived] = createSignal(false);
   const [form, setForm] = createSignal(null); // null | { exercise, mode }
   const [busySlug, setBusySlug] = createSignal(null);
+  const [confirmingSlug, setConfirmingSlug] = createSignal(null);
 
   const all = createMemo(() =>
     Object.values(props.programme.exercises).sort((a, b) => a.name.localeCompare(b.name))
@@ -32,35 +33,67 @@ export default function ExerciseLibraryView(props) {
     }
 
     setBusySlug(exercise.slug);
+    const verb = exercise.archived ? 'Restored' : 'Archived';
     try {
       await setExerciseArchived(exercise.slug, !exercise.archived);
-      await props.onSaved();
     } catch (e) {
       props.onError(e.message || 'Could not save. Try again.');
+      setBusySlug(null);
+      return;
+    }
+
+    // Split from the write above so the message can't claim a failure that did
+    // not happen: the row is already changed by this point, and telling the
+    // user to "try again" would have them re-archive something that is
+    // archived. Same distinction DetailView draws around saveWorkoutSlots.
+    try {
+      await props.onSaved();
+    } catch (e) {
+      props.onError(`${verb}, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
     } finally {
       setBusySlug(null);
     }
   }
 
-  async function remove(exercise) {
-    const blockers = usedByWorkouts(exercise.slug, props.workouts);
-    if (blockers.length > 0) {
-      props.onError(`${exercise.name} is still used by ${blockers.join(', ')}.`);
+  // Deletion is offered for every exercise rather than hidden where it cannot
+  // work, because the spec requires a refused deletion to name what is blocking
+  // it — and a button that is simply absent explains nothing. This mirrors
+  // Archive, which is likewise always offered and refuses with its blockers
+  // named.
+  function askToRemove(exercise) {
+    const blocked = deleteBlockedReason(exercise, props.workouts);
+    if (blocked) {
+      props.onError(blocked);
       return;
     }
-    if (exercise.prescription) {
-      props.onError(
-        `${exercise.name} has recorded history, so it can't be deleted. Archive it instead.`
-      );
+    setConfirmingSlug(exercise.slug);
+  }
+
+  // There is one user, no undo, and this button sits a few millimetres from
+  // Archive in a wrapping row on a phone. Confirming matches how deleting a
+  // workout already behaves in WorkoutFormSheet.
+  async function remove(exercise) {
+    const blocked = deleteBlockedReason(exercise, props.workouts);
+    if (blocked) {
+      props.onError(blocked);
+      setConfirmingSlug(null);
       return;
     }
 
     setBusySlug(exercise.slug);
     try {
       await deleteExercise(exercise.slug);
-      await props.onSaved();
     } catch (e) {
       props.onError(e.message || 'Could not delete. Try again.');
+      setBusySlug(null);
+      return;
+    }
+
+    setConfirmingSlug(null);
+    try {
+      await props.onSaved();
+    } catch (e) {
+      props.onError(`Deleted, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
     } finally {
       setBusySlug(null);
     }
@@ -113,31 +146,52 @@ export default function ExerciseLibraryView(props) {
                   </Show>
                 </div>
 
-                <div class="library-item-actions">
-                  <button
-                    class="secondary-btn"
-                    disabled={props.stale || busySlug() === exercise.slug}
-                    onClick={() => setForm({ exercise, mode: 'edit' })}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="secondary-btn"
-                    disabled={props.stale || busySlug() === exercise.slug}
-                    onClick={() => toggleArchived(exercise)}
-                  >
-                    {exercise.archived ? 'Restore' : 'Archive'}
-                  </button>
-                  <Show when={canHardDelete(exercise, props.workouts)}>
+                <Show
+                  when={confirmingSlug() === exercise.slug}
+                  fallback={
+                    <div class="library-item-actions">
+                      <button
+                        class="secondary-btn"
+                        disabled={props.stale || busySlug() === exercise.slug}
+                        onClick={() => setForm({ exercise, mode: 'edit' })}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="secondary-btn"
+                        disabled={props.stale || busySlug() === exercise.slug}
+                        onClick={() => toggleArchived(exercise)}
+                      >
+                        {exercise.archived ? 'Restore' : 'Archive'}
+                      </button>
+                      <button
+                        class="danger-btn danger-btn-inline"
+                        disabled={props.stale || busySlug() === exercise.slug}
+                        onClick={() => askToRemove(exercise)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  }
+                >
+                  <div class="library-item-actions">
+                    <span class="library-item-confirm">Delete permanently?</span>
+                    <button
+                      class="secondary-btn"
+                      disabled={busySlug() === exercise.slug}
+                      onClick={() => setConfirmingSlug(null)}
+                    >
+                      Keep
+                    </button>
                     <button
                       class="danger-btn danger-btn-inline"
-                      disabled={props.stale || busySlug() === exercise.slug}
+                      disabled={busySlug() === exercise.slug}
                       onClick={() => remove(exercise)}
                     >
-                      Delete
+                      {busySlug() === exercise.slug ? 'Deleting…' : 'Delete'}
                     </button>
-                  </Show>
-                </div>
+                  </div>
+                </Show>
               </li>
             )}
           </For>
@@ -154,6 +208,7 @@ export default function ExerciseLibraryView(props) {
             onDuplicate={(exercise) => setForm({ exercise, mode: 'duplicate' })}
             onClose={() => setForm(null)}
             onSaved={props.onSaved}
+            onError={props.onError}
           />
         )}
       </Show>

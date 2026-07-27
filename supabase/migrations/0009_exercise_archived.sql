@@ -7,6 +7,7 @@
 -- Reversible by design: archiving hides, it never destroys.
 alter table exercises add column archived boolean not null default false;
 
--- Partial index: the picker and the default library listing both filter to
--- archived = false, and that is the only predicate ever used.
-create index exercises_active on exercises (slug) where archived = false;
+-- No index on this column, deliberately. The app reads `exercises` with an
+-- unfiltered select * and does the archived filtering client-side, so no query
+-- has the predicate to match; and on a table of tens of rows the planner would
+-- pick a sequential scan regardless.

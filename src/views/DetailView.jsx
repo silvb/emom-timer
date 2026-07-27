@@ -94,6 +94,11 @@ export default function DetailView(props) {
   // instruction. A refetch failure means the write already landed — the
   // draft is stale work, not pending work, so it clears like the success
   // path, and the message must not suggest retrying the save itself.
+  //
+  // Post-save messages go through props.onError (the app-level toast), not
+  // setEditError: the draft clears on those paths, and the in-sheet error
+  // paragraph only renders inside the edit-mode block, so anything set there
+  // would vanish in the same tick it was written.
   async function saveSlots() {
     setBusy(true);
     setEditError(null);
@@ -109,7 +114,9 @@ export default function DetailView(props) {
       // so an error here can describe a write that actually landed. Retrying
       // is still safe either way: the payload is a whole-list replace, so
       // sending it again is idempotent.
-      setEditError(`Nothing was changed. ${e.message || 'Try again.'}`);
+      setEditError(
+        `Could not save. ${e.message || 'Try again.'} Saving again is safe — it replaces the whole list.`
+      );
       setBusy(false);
       return;
     }
@@ -128,10 +135,24 @@ export default function DetailView(props) {
       // succeeded, so the draft is cleared here too rather than left open
       // for a "retry" that would just resend an identical, already-applied
       // list.
-      setEditError(`Saved, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
+      props.onError(`Saved, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
       setDraft(null);
       setBusy(false);
       return;
+    }
+
+    // A refetch that cannot reach the network does not reject: loadProgramme
+    // falls back to the cache and resolves with stale: true (db.js). So the
+    // branch above catches almost nothing in practice, and the realistic
+    // failure is this one — the save committed, the refetch quietly returned
+    // the pre-save slot order, and the list re-renders looking untouched. The
+    // stale banner alone does not say which of the two happened, and a user
+    // who sees their old order after pressing Save will reasonably conclude
+    // the save failed and do it again.
+    if (props.stale) {
+      props.onError(
+        'Saved, but the screen is showing saved data from before the change. Reconnect and reload to see it.'
+      );
     }
 
     setDraft(null);
@@ -257,8 +278,15 @@ export default function DetailView(props) {
                     <ExerciseLine parts={describeSlot(slot, null)} />
                   </span>
                   <Show when={slot.exercise?.unilateral}>
-                    <button class="slot-side-btn" onClick={() => cycleSide(i())}>
-                      {slot.side === 'per_round' ? 'per round' : 'both sides'}
+                    {/* Labelled with the state it is in, not the state it would
+                        switch to: "per round" alone reads as a command on a
+                        button, and the two are indistinguishable at a glance. */}
+                    <button
+                      class="slot-side-btn"
+                      aria-label={`Change side handling for ${slot.exercise?.name}`}
+                      onClick={() => cycleSide(i())}
+                    >
+                      {slot.side === 'per_round' ? 'sides: per round' : 'sides: both'}
                     </button>
                   </Show>
                   <button
@@ -285,11 +313,22 @@ export default function DetailView(props) {
             <p class="edit-error" role="alert">{editError()}</p>
           </Show>
 
+          <Show when={props.stale}>
+            <p class="schedule-stale-note">
+              The data went stale while you were editing. Saving this list could overwrite a change
+              made elsewhere, so it is unavailable until the connection is back.
+            </p>
+          </Show>
+
           <div class="edit-actions">
             <button class="edit-cancel-btn" onClick={cancelEdit} disabled={busy()}>
               Cancel
             </button>
-            <button class="edit-save-btn" onClick={saveSlots} disabled={busy()}>
+            {/* Stale-gated as well as busy-gated: entering edit mode is already
+                blocked while stale, but the flag can flip mid-draft, and this
+                is the one write in the app that replaces a whole list rather
+                than appending to a journal. */}
+            <button class="edit-save-btn" onClick={saveSlots} disabled={busy() || props.stale}>
               {busy() ? 'Saving…' : 'Save changes'}
             </button>
           </div>

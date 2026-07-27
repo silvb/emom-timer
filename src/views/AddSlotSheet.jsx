@@ -10,9 +10,12 @@ import ExerciseLine from '../components/ExerciseLine.jsx';
 export default function AddSlotSheet(props) {
   const choices = () => eligibleExercises(props.exercises, props.workout);
 
+  // No `position`: DetailView strips it from existing slots when the draft
+  // opens, because save_workout_slots renumbers from array order. Setting it
+  // here would put two shapes in the same draft list — the drift the stripping
+  // exists to prevent.
   function pick(exercise) {
     props.onAdd({
-      position: null,
       side: defaultSide(exercise),
       exercise,
     });

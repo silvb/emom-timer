@@ -118,9 +118,12 @@ function Programme() {
             workouts={workouts()}
             onClose={() => setWorkoutForm(null)}
             onSaved={refetch}
+            onError={(m) => setToast(m)}
+            // Returned, not fired and forgotten: the sheet awaits this to tell
+            // a failed refresh apart from a failed write.
             onDeleted={() => {
               setView('schedule');
-              refetch();
+              return refetch();
             }}
           />
         )}

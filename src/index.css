@@ -918,15 +918,59 @@ html, body {
   text-align: center;
 }
 
-.edit-field select,
-.edit-field input[type='text'] {
+/* Matches `.edit-field input` above rather than restating it differently:
+   text inputs are already covered by that rule, and styling them again here
+   gave the Phase-2 sheets a different font, background and corner radius from
+   EditSlotSheet's fields on the same screen. 16px is load-bearing — anything
+   smaller makes iOS Safari zoom on focus. */
+.edit-field select {
+  min-height: 44px;
   width: 100%;
-  padding: 0.7rem 0.8rem;
+  padding: 10px 14px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: inherit;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+/* The generic `.edit-field input` rule stretches every input to full width and
+   a 44px tap target, which is right for a text field and wrong for the
+   unilateral checkbox that also lives inside an `.edit-field`. Opt it back out
+   to a real checkbox instead of a full-width bar. */
+.edit-field input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+/* A text button for switching the movement field between the existing-movement
+   dropdown and free text — deliberately not a `.secondary-btn`, which would
+   read as a second action of equal weight to Save. */
+.edit-link-btn {
+  align-self: flex-start;
+  padding: 0.2rem 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
   font: inherit;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.edit-link-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.library-item-confirm {
+  align-self: center;
+  font-size: 0.8rem;
 }
 
 .edit-hint {

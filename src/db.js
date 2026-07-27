@@ -6,7 +6,14 @@ const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const supabase = createClient(url, key);
 
-const CACHE_KEY = 'emom.programme.v2';
+// Deliberately not bumped for Phase 2's `archived` field. The cache holds the
+// already-shaped programme and is returned as-is, so a v1 entry never passes
+// back through shapeProgramme — its exercises simply have no `archived` key,
+// which is falsy and therefore reads as active everywhere it is checked.
+// Bumping would discard every cache on the first load after a deploy, and if
+// that first load happens offline the user gets the error screen instead of
+// their workouts.
+const CACHE_KEY = 'emom.programme.v1';
 
 export function writeCache(programme) {
   try {
@@ -106,8 +113,9 @@ export async function setExerciseArchived(slug, archived) {
 }
 
 // Only ever succeeds for an exercise with no prescriptions and no slots: both
-// foreign keys are `on delete restrict`. canHardDelete() in structure.js is
-// the pre-check that keeps this from being offered when it cannot work.
+// foreign keys are `on delete restrict`. deleteBlockedReason() in structure.js
+// is the pre-check that turns that refusal into a sentence naming the blocker,
+// rather than letting a Postgres constraint name reach the user.
 export async function deleteExercise(slug) {
   const { error } = await supabase.from('exercises').delete().eq('slug', slug);
   throwIf(error);

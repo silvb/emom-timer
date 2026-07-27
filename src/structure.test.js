@@ -9,7 +9,8 @@ import {
   workoutFormError,
   usedByWorkouts,
   lockedExerciseFields,
-  canHardDelete,
+  deleteBlockedReason,
+  MAX_ROUNDS,
   eligibleExercises,
   defaultSide,
   sideWarnings,
@@ -145,6 +146,24 @@ describe('exerciseFormError', () => {
   it('rejects a round count on a type that must not carry one', () => {
     expect(exerciseFormError({ ...valid(), type: 'fixed', rounds: '4' })).toMatch(/only ramp/i);
   });
+
+  it('accepts a round count at the cap', () => {
+    expect(
+      exerciseFormError({ ...valid(), type: 'ramp_up', rounds: String(MAX_ROUNDS) })
+    ).toBeNull();
+  });
+
+  it('rejects a round count above the cap', () => {
+    expect(
+      exerciseFormError({ ...valid(), type: 'ramp_up', rounds: String(MAX_ROUNDS + 1) })
+    ).toMatch(/30 or fewer/i);
+  });
+
+  it('rejects exponent notation that would render a weight field per round', () => {
+    expect(exerciseFormError({ ...valid(), type: 'ramp_up', rounds: '1e9' })).toMatch(
+      /30 or fewer/i
+    );
+  });
 });
 
 describe('workoutFormError', () => {
@@ -190,6 +209,12 @@ describe('workoutFormError', () => {
 
   it('rejects a fractional round count', () => {
     expect(workoutFormError({ ...valid(), rounds: '2.5' })).toMatch(/whole/i);
+  });
+
+  it('rejects a round count above the cap', () => {
+    expect(workoutFormError({ ...valid(), rounds: String(MAX_ROUNDS + 1) })).toMatch(
+      /30 or fewer/i
+    );
   });
 
   it('editing a workout and keeping its own id is allowed', () => {
@@ -270,18 +295,32 @@ describe('lockedExerciseFields', () => {
   });
 });
 
-describe('canHardDelete', () => {
-  it('is false when a prescription exists', () => {
-    expect(canHardDelete(ex(), [])).toBe(false);
+describe('deleteBlockedReason', () => {
+  it('names the prescription when one exists', () => {
+    expect(deleteBlockedReason(ex(), [])).toMatch(/prescription/i);
   });
 
-  it('is false when a workout uses it', () => {
+  it('names every workout using it', () => {
     const e = ex({ prescription: null });
-    expect(canHardDelete(e, [workoutWith(e)])).toBe(false);
+    const reason = deleteBlockedReason(e, [workoutWith(e), workoutWith(e, { id: 'o', title: 'Other Day' })]);
+    expect(reason).toMatch(/Squat Main/);
+    expect(reason).toMatch(/Other Day/);
   });
 
-  it('is true when nothing references it', () => {
-    expect(canHardDelete(ex({ prescription: null }), [])).toBe(true);
+  it('names both blockers when a slot and a prescription hold it', () => {
+    const e = ex();
+    const reason = deleteBlockedReason(e, [workoutWith(e)]);
+    expect(reason).toMatch(/Squat Main/);
+    expect(reason).toMatch(/prescription/i);
+  });
+
+  it('names the exercise and points at archiving', () => {
+    expect(deleteBlockedReason(ex(), [])).toMatch(/Zercher Squats/);
+    expect(deleteBlockedReason(ex(), [])).toMatch(/archive/i);
+  });
+
+  it('is null when nothing references it', () => {
+    expect(deleteBlockedReason(ex({ prescription: null }), [])).toBeNull();
   });
 });
 

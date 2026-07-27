@@ -6,6 +6,7 @@ import {
   deriveSlug,
   lockedExerciseFields,
   EXERCISE_TYPES,
+  MAX_ROUNDS,
 } from '../structure.js';
 
 const TYPE_LABELS = {
@@ -37,8 +38,27 @@ export default function ExerciseFormSheet(props) {
   const [name, setName] = createSignal(initialName);
   const [slug, setSlug] = createSignal(isEdit ? source.slug : deriveSlug(initialName));
   const [slugTouched, setSlugTouched] = createSignal(isEdit);
-  const [movement, setMovement] = createSignal(source?.movement ?? '');
-  const [movementIsNew, setMovementIsNew] = createSignal(false);
+
+  // A brand-new exercise defaults to its own identifier as its movement: most
+  // lifts are their own movement, and the grouping only matters once a second
+  // variant exists. Until the field is touched the default tracks the
+  // identifier live, so renaming before the first save carries the movement
+  // with it instead of stranding whatever the name happened to be when the
+  // field was first shown.
+  const [movementInput, setMovementInput] = createSignal(source?.movement ?? '');
+  const [movementTouched, setMovementTouched] = createSignal(mode !== 'create');
+  const movement = () => (movementTouched() ? movementInput() : slug());
+
+  function chooseMovement(value) {
+    setMovementTouched(true);
+    setMovementInput(value);
+  }
+
+  // Which control the movement field shows. It starts on the free-text input
+  // for a new exercise because that is where the identifier default lives, and
+  // both directions are reachable — picking an existing movement is the whole
+  // reason the field is not just a text box.
+  const [movementIsNew, setMovementIsNew] = createSignal(mode === 'create');
   const [type, setType] = createSignal(source?.type ?? 'fixed');
   const [rounds, setRounds] = createSignal(String(source?.rounds ?? ''));
   const [unilateral, setUnilateral] = createSignal(Boolean(source?.unilateral));
@@ -51,6 +71,19 @@ export default function ExerciseFormSheet(props) {
 
   const [formError, setFormError] = createSignal(null);
   const [busy, setBusy] = createSignal(false);
+
+  // Creating is two writes — the exercise row, then its opening prescription —
+  // and they are deliberately not atomic (see save()). Remembering that the
+  // first one landed is what makes the second attempt a retry rather than a
+  // duplicate-key error on an insert that already succeeded: without it, Save
+  // is permanently unusable after a mid-create network drop, and the only way
+  // to add the missing prescription is to leave, attach the exercise to a
+  // workout and use EditSlotSheet.
+  const [createdSlug, setCreatedSlug] = createSignal(null);
+  // While this is set, the exercise row exists and only its prescription is
+  // outstanding, so every field that belongs to the row is frozen — editing
+  // them would silently do nothing.
+  const pendingPrescription = () => Boolean(createdSlug());
 
   // Locked fields only apply while editing in place. A duplicate is a brand-new
   // row with nothing attached, so every field is free — that is the point.
@@ -65,7 +98,10 @@ export default function ExerciseFormSheet(props) {
   );
 
   const needsPrescription = () => type() !== 'plain';
-  const weightCount = () => (type() === 'ramp_up' ? Math.max(1, Number(rounds()) || 1) : 1);
+  // Clamped to MAX_ROUNDS because this drives how many weight inputs render on
+  // every keystroke, before validation has had a chance to reject the value.
+  const weightCount = () =>
+    type() === 'ramp_up' ? Math.min(MAX_ROUNDS, Math.max(1, Number(rounds()) || 1)) : 1;
 
   function changeName(value) {
     setName(value);
@@ -144,45 +180,75 @@ export default function ExerciseFormSheet(props) {
           ...(locks().unilateral ? {} : { unilateral: unilateral() }),
         });
       } else {
-        await createExercise({
-          slug: slug().trim(),
-          movement: movement().trim(),
-          name: name().trim(),
-          type: type(),
-          rounds: Number(rounds()),
-          unilateral: unilateral(),
-        });
-
         // Two requests, deliberately not atomic. If the prescription insert
         // fails the exercise exists without one, which validateWorkout()
-        // already reports as "has no prescription yet" and the edit sheet can
-        // fix — unlike a slot rewrite, there is no state here that silently
-        // breaks a workout.
+        // already reports as "has no prescription yet" — unlike a slot rewrite,
+        // there is no state here that silently breaks a workout. What the split
+        // does need is a retry that does not redo the half that succeeded,
+        // hence createdSlug: pressing Save again completes the prescription
+        // instead of failing on a duplicate primary key.
+        if (!pendingPrescription()) {
+          await createExercise({
+            slug: slug().trim(),
+            movement: movement().trim(),
+            name: name().trim(),
+            type: type(),
+            rounds: Number(rounds()),
+            unilateral: unilateral(),
+          });
+          setCreatedSlug(slug().trim());
+        }
+
         if (needsPrescription()) {
           await savePrescription({
-            exercise_slug: slug().trim(),
+            exercise_slug: createdSlug(),
             reps_min: Number(repsMin()),
             reps_max: Number(repsMax()),
             weights: syncedWeights().map((w) => Number(normalizeDecimal(w))),
           });
         }
       }
-
-      props.onSaved();
-      props.onClose();
     } catch (e) {
       setFormError(e.message || 'Could not save. Try again.');
-    } finally {
       setBusy(false);
+      return;
     }
+
+    // The write has landed. A refetch failure from here is a refresh problem,
+    // not a write problem, and must not be reported as "could not save" —
+    // the same distinction DetailView draws after saveWorkoutSlots.
+    try {
+      await props.onSaved();
+    } catch (e) {
+      props.onError?.(`Saved, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
+    }
+
+    setBusy(false);
+    props.onClose();
   }
 
   return (
-    <div class="edit-sheet-backdrop" onClick={props.onClose}>
+    <div
+      class="edit-sheet-backdrop"
+      onClick={() => {
+        // Not while a write is in flight: Cancel is disabled for the same
+        // reason, and a backdrop tap here would discard the typed form —
+        // including the record of a half-finished create that Save needs to
+        // finish the job.
+        if (!busy()) props.onClose();
+      }}
+    >
       <div class="edit-sheet" onClick={(e) => e.stopPropagation()}>
         <h2 class="edit-sheet-title">
           {mode === 'create' ? 'New exercise' : mode === 'duplicate' ? 'Duplicate exercise' : source.name}
         </h2>
+
+        <Show when={pendingPrescription()}>
+          <p class="edit-warning" role="alert">
+            “{name().trim()}” was created, but its opening prescription was not saved. Save again to
+            add it — the exercise itself is already stored and can no longer be changed here.
+          </p>
+        </Show>
 
         <Show when={mode === 'duplicate'}>
           <p class="edit-hint">
@@ -198,6 +264,7 @@ export default function ExerciseFormSheet(props) {
             type="text"
             autocomplete="off"
             value={name()}
+            disabled={pendingPrescription()}
             onInput={(e) => changeName(e.currentTarget.value)}
           />
         </div>
@@ -210,6 +277,7 @@ export default function ExerciseFormSheet(props) {
               type="text"
               autocomplete="off"
               value={slug()}
+              disabled={pendingPrescription()}
               onInput={(e) => {
                 setSlugTouched(true);
                 setSlug(e.currentTarget.value);
@@ -227,12 +295,16 @@ export default function ExerciseFormSheet(props) {
               <select
                 id="ex-movement"
                 value={movement()}
+                disabled={pendingPrescription()}
                 onInput={(e) => {
                   if (e.currentTarget.value === '__new__') {
                     setMovementIsNew(true);
-                    setMovement(slug());
+                    // Untouch it so the free-text box falls back to the live
+                    // identifier rather than a value captured at this instant.
+                    setMovementTouched(false);
+                    setMovementInput('');
                   } else {
-                    setMovement(e.currentTarget.value);
+                    chooseMovement(e.currentTarget.value);
                   }
                 }}
               >
@@ -247,8 +319,20 @@ export default function ExerciseFormSheet(props) {
               type="text"
               autocomplete="off"
               value={movement()}
-              onInput={(e) => setMovement(e.currentTarget.value)}
+              disabled={pendingPrescription()}
+              onInput={(e) => chooseMovement(e.currentTarget.value)}
             />
+            <button
+              type="button"
+              class="edit-link-btn"
+              disabled={pendingPrescription()}
+              onClick={() => {
+                setMovementIsNew(false);
+                chooseMovement('');
+              }}
+            >
+              Use an existing movement
+            </button>
           </Show>
           <p class="edit-hint">Groups variants of the same lift so their progress lines up.</p>
         </div>
@@ -258,7 +342,7 @@ export default function ExerciseFormSheet(props) {
           <select
             id="ex-type"
             value={type()}
-            disabled={Boolean(locks().type)}
+            disabled={Boolean(locks().type) || pendingPrescription()}
             onInput={(e) => setType(e.currentTarget.value)}
           >
             <For each={EXERCISE_TYPES}>
@@ -279,7 +363,7 @@ export default function ExerciseFormSheet(props) {
               inputmode="numeric"
               autocomplete="off"
               value={rounds()}
-              disabled={Boolean(locks().rounds)}
+              disabled={Boolean(locks().rounds) || pendingPrescription()}
               onInput={(e) => setRounds(e.currentTarget.value)}
             />
             <Show when={locks().rounds}>
@@ -293,7 +377,7 @@ export default function ExerciseFormSheet(props) {
             <input
               type="checkbox"
               checked={unilateral()}
-              disabled={Boolean(locks().unilateral)}
+              disabled={Boolean(locks().unilateral) || pendingPrescription()}
               onInput={(e) => setUnilateral(e.currentTarget.checked)}
             />
             One side at a time

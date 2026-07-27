@@ -37,3 +37,11 @@ begin
   from jsonb_array_elements(p_slots) with ordinality as t(elem, ord);
 end;
 $$;
+
+-- Postgres grants EXECUTE to public on every new function, which would expose
+-- this to `anon` over PostgREST. The workout-existence check makes an anon call
+-- inert (RLS hides every row, so the guard raises first), but 0006 narrowed
+-- this schema's grants on purpose and leaving the default in place quietly
+-- widens it again.
+revoke all on function save_workout_slots(text, jsonb) from public;
+grant execute on function save_workout_slots(text, jsonb) to authenticated;

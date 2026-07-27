@@ -124,21 +124,40 @@ export default function EditSlotSheet(props) {
         reps_max: Number(repsMax()),
         weights: weights().map((w) => Number(normalizeDecimal(w))),
       });
-      props.onSaved(); // triggers refetch in App
-      props.onClose();
     } catch (e) {
       // Surface the failure in-sheet, not via the global toast: the sheet is
       // deliberately kept open for retry, and the toast renders at the same
       // bottom-of-viewport spot behind the sheet's own backdrop, so a toast
       // here would be invisible to the user who is looking at this form.
       setFormError(e.message || 'Could not save. Try again.');
-    } finally {
       setBusy(false);
+      return;
     }
+
+    // The prescription is written. A refetch failure from here is a refresh
+    // problem, not a write problem — reporting it in-sheet as "could not save"
+    // would send the user to write the same journal row twice. The toast is
+    // the right surface because the sheet closes either way.
+    try {
+      await props.onSaved(); // triggers refetch in App
+    } catch (e) {
+      props.onError?.(`Saved, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
+    }
+
+    setBusy(false);
+    props.onClose();
   }
 
   return (
-    <div class="edit-sheet-backdrop" onClick={props.onClose}>
+    <div
+      class="edit-sheet-backdrop"
+      onClick={() => {
+        // Cancel is disabled while the save is in flight; the backdrop has to
+        // agree, or the same tap that Cancel refuses throws away the reps and
+        // weights just typed.
+        if (!busy()) props.onClose();
+      }}
+    >
       <div class="edit-sheet" onClick={(e) => e.stopPropagation()}>
         <h2 class="edit-sheet-title">{exercise().name}</h2>
 

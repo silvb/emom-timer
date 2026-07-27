@@ -19,8 +19,8 @@ export function shapeProgramme(exerciseRows, prescriptionRows, workoutRows, slot
       type: e.type,
       rounds: e.rounds,
       unilateral: e.unilateral,
-      // Rows written before migration 0009, and cache entries written before
-      // this field existed, both arrive as undefined and must read as active.
+      // A row read before migration 0009 is applied has no archived column at
+      // all, and must read as active rather than undefined.
       archived: e.archived ?? false,
       prescription: byExercise.get(e.slug) ?? null,
     };

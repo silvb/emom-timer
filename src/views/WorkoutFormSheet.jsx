@@ -69,33 +69,53 @@ export default function WorkoutFormSheet(props) {
       } else {
         await updateWorkout(existing.id, fields);
       }
-      props.onSaved();
-      props.onClose();
     } catch (e) {
       // A round-count change on a workout holding a ramp exercise is rejected
       // by check_workout_rounds (0001). Its message names the exercise and
       // both counts, so show it rather than a generic failure.
       setFormError(e.message || 'Could not save. Try again.');
-    } finally {
       setBusy(false);
+      return;
     }
+
+    // Separate from the write: the workout is stored by this point, so a
+    // refetch failure must not be reported as a save failure, and awaiting it
+    // is what keeps a rejection from becoming an unhandled promise.
+    await finish('Saved');
   }
 
   async function remove() {
     setBusy(true);
     try {
       await deleteWorkout(existing.id);
-      props.onDeleted();
-      props.onClose();
     } catch (e) {
       setFormError(e.message || 'Could not delete. Try again.');
-    } finally {
       setBusy(false);
+      return;
     }
+
+    await finish('Deleted', props.onDeleted);
+  }
+
+  async function finish(verb, refresh = props.onSaved) {
+    try {
+      await refresh();
+    } catch (e) {
+      props.onError?.(`${verb}, but the screen could not refresh. ${e.message || 'Try reloading.'}`);
+    }
+    setBusy(false);
+    props.onClose();
   }
 
   return (
-    <div class="edit-sheet-backdrop" onClick={props.onClose}>
+    <div
+      class="edit-sheet-backdrop"
+      onClick={() => {
+        // Cancel is disabled while a write is in flight; the backdrop has to
+        // agree, or the same tap that Cancel refuses discards the form anyway.
+        if (!busy()) props.onClose();
+      }}
+    >
       <div class="edit-sheet" onClick={(e) => e.stopPropagation()}>
         <h2 class="edit-sheet-title">{isNew ? 'New workout' : 'Edit workout'}</h2>
 
