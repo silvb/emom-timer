@@ -9,6 +9,7 @@ import DetailView from './views/DetailView.jsx';
 import ActiveView from './views/ActiveView.jsx';
 import ScheduleView from './views/ScheduleView.jsx';
 import ExerciseLibraryView from './views/ExerciseLibraryView.jsx';
+import WorkoutFormSheet from './views/WorkoutFormSheet.jsx';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ function Programme() {
   const [selectedId, setSelectedId] = createSignal(null);
   const [colorMap, setColorMap] = createSignal({});
   const [toast, setToast] = createSignal(null);
+  const [workoutForm, setWorkoutForm] = createSignal(null); // null | { workout: object|null }
 
   const workouts = () => data()?.programme.workouts ?? [];
   const selectedWorkout = () => workouts().find((w) => w.id === selectedId()) ?? null;
@@ -69,7 +71,7 @@ function Programme() {
             workouts={workouts()}
             stale={stale()}
             onSelect={selectWorkout}
-            onNewWorkout={() => {}}
+            onNewWorkout={() => setWorkoutForm({ workout: null })}
             onOpenLibrary={() => setView('library')}
           />
         </Match>
@@ -106,6 +108,21 @@ function Programme() {
           />
         </Match>
       </Switch>
+
+      <Show when={workoutForm()} keyed>
+        {(form) => (
+          <WorkoutFormSheet
+            workout={form.workout}
+            workouts={workouts()}
+            onClose={() => setWorkoutForm(null)}
+            onSaved={refetch}
+            onDeleted={() => {
+              setView('schedule');
+              refetch();
+            }}
+          />
+        )}
+      </Show>
 
       <Toast message={toast()} onDismiss={() => setToast(null)} />
     </>

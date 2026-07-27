@@ -917,3 +917,43 @@ html, body {
   opacity: 0.6;
   text-align: center;
 }
+
+.edit-field select,
+.edit-field input[type='text'] {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font: inherit;
+}
+
+.edit-hint {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0.55;
+}
+
+.edit-warning {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.danger-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(255, 90, 90, 0.5);
+  border-radius: 12px;
+  background: transparent;
+  color: #ff7a7a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.danger-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
