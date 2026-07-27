@@ -69,7 +69,7 @@ function Programme() {
             workouts={workouts()}
             stale={stale()}
             onSelect={selectWorkout}
-            onNewWorkout={() => setView('library')}
+            onNewWorkout={() => {}}
             onOpenLibrary={() => setView('library')}
           />
         </Match>

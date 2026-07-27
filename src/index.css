@@ -887,3 +887,33 @@ html, body {
   cursor: pointer;
   text-align: center;
 }
+
+.schedule-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.secondary-btn {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.schedule-stale-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  text-align: center;
+}
