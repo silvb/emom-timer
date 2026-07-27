@@ -72,7 +72,6 @@ describe('exerciseFormError', () => {
     type: 'fixed',
     rounds: '',
     existingSlugs: ['goblet_squat'],
-    isNew: true,
   });
 
   it('accepts a well-formed new exercise', () => {
@@ -97,8 +96,24 @@ describe('exerciseFormError', () => {
 
   it('allows an existing slug when editing that same exercise', () => {
     expect(
-      exerciseFormError({ ...valid(), slug: 'goblet_squat', isNew: false })
+      exerciseFormError({ ...valid(), slug: 'goblet_squat', currentSlug: 'goblet_squat' })
     ).toBeNull();
+  });
+
+  it('editing an exercise and keeping its own slug is allowed', () => {
+    expect(
+      exerciseFormError({
+        ...valid(),
+        slug: 'bulgarian_split_squat',
+        currentSlug: 'bulgarian_split_squat',
+      })
+    ).toBeNull();
+  });
+
+  it('editing an exercise and taking a different existing exercise slug is rejected', () => {
+    expect(
+      exerciseFormError({ ...valid(), slug: 'goblet_squat', currentSlug: 'bulgarian_split_squat' })
+    ).toMatch(/already/i);
   });
 
   it('rejects an unknown type', () => {
@@ -133,7 +148,6 @@ describe('workoutFormError', () => {
     day: 'monday',
     rounds: '4',
     existingIds: ['squat_main'],
-    isNew: true,
   });
 
   it('accepts a well-formed new workout', () => {
@@ -157,7 +171,7 @@ describe('workoutFormError', () => {
   });
 
   it('allows the existing id when editing', () => {
-    expect(workoutFormError({ ...valid(), id: 'squat_main', isNew: false })).toBeNull();
+    expect(workoutFormError({ ...valid(), id: 'squat_main', currentId: 'squat_main' })).toBeNull();
   });
 
   it('rejects an unknown day', () => {
@@ -170,5 +184,17 @@ describe('workoutFormError', () => {
 
   it('rejects a fractional round count', () => {
     expect(workoutFormError({ ...valid(), rounds: '2.5' })).toMatch(/whole/i);
+  });
+
+  it('editing a workout and keeping its own id is allowed', () => {
+    expect(
+      workoutFormError({ ...valid(), id: 'push_day', currentId: 'push_day' })
+    ).toBeNull();
+  });
+
+  it('editing a workout and taking a different existing workout id is rejected', () => {
+    expect(
+      workoutFormError({ ...valid(), id: 'squat_main', currentId: 'push_day' })
+    ).toMatch(/already/i);
   });
 });

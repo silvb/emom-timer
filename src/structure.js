@@ -71,7 +71,7 @@ export function exerciseFormError({
   type,
   rounds,
   existingSlugs = [],
-  isNew = true,
+  currentSlug = undefined,
 }) {
   if (String(name ?? '').trim() === '') return 'Enter a name.';
   if (String(movement ?? '').trim() === '') return 'Choose or enter a movement.';
@@ -80,7 +80,13 @@ export function exerciseFormError({
   if (!SLUG_PATTERN.test(slugValue)) {
     return 'The identifier may only contain lowercase letters, digits and underscores.';
   }
-  if (isNew && existingSlugs.includes(slugValue)) {
+
+  // The identifier is a primary key, so a collision is a database error either
+  // way. This validation turns an opaque Postgres duplicate-key error into a
+  // sentence the user can act on. When editing, exclude the record's own slug
+  // from the collision set so the user can keep their current identifier.
+  const taken = existingSlugs.filter((s) => s !== currentSlug);
+  if (taken.includes(slugValue)) {
     return `The identifier "${slugValue}" is already in use.`;
   }
 
@@ -105,7 +111,7 @@ export function workoutFormError({
   day,
   rounds,
   existingIds = [],
-  isNew = true,
+  currentId = undefined,
 }) {
   if (String(title ?? '').trim() === '') return 'Enter a title.';
 
@@ -113,7 +119,13 @@ export function workoutFormError({
   if (!SLUG_PATTERN.test(idValue)) {
     return 'The identifier may only contain lowercase letters, digits and underscores.';
   }
-  if (isNew && existingIds.includes(idValue)) {
+
+  // The identifier is a primary key, so a collision is a database error either
+  // way. This validation turns an opaque Postgres duplicate-key error into a
+  // sentence the user can act on. When editing, exclude the record's own id
+  // from the collision set so the user can keep their current identifier.
+  const taken = existingIds.filter((id) => id !== currentId);
+  if (taken.includes(idValue)) {
     return `The identifier "${idValue}" is already in use.`;
   }
 
