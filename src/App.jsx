@@ -8,6 +8,7 @@ import Toast from './components/Toast.jsx';
 import DetailView from './views/DetailView.jsx';
 import ActiveView from './views/ActiveView.jsx';
 import ScheduleView from './views/ScheduleView.jsx';
+import ExerciseLibraryView from './views/ExerciseLibraryView.jsx';
 
 export default function App() {
   return (
@@ -21,13 +22,20 @@ export default function App() {
 
 function Programme() {
   const [data, { refetch }] = createResource(loadProgramme);
-  const [view, setView] = createSignal('schedule'); // 'schedule' | 'detail' | 'active'
+  const [view, setView] = createSignal('schedule'); // 'schedule' | 'detail' | 'active' | 'library'
   const [selectedId, setSelectedId] = createSignal(null);
   const [colorMap, setColorMap] = createSignal({});
   const [toast, setToast] = createSignal(null);
 
   const workouts = () => data()?.programme.workouts ?? [];
   const selectedWorkout = () => workouts().find((w) => w.id === selectedId()) ?? null;
+
+  // Structural editing reads the current slot set, changes it, and writes the
+  // whole set back. Doing that from a cached copy can silently undo a change
+  // made elsewhere, so the editors are closed while the data is known stale.
+  // Prescription writes are append-only and carry no such hazard, which is why
+  // they stay available.
+  const stale = () => Boolean(data()?.stale);
 
   function selectWorkout(w) {
     setSelectedId(w.id);
@@ -57,13 +65,20 @@ function Programme() {
         </Match>
 
         <Match when={data() && view() === 'schedule'}>
-          <ScheduleView workouts={workouts()} onSelect={selectWorkout} />
+          <ScheduleView
+            workouts={workouts()}
+            stale={stale()}
+            onSelect={selectWorkout}
+            onNewWorkout={() => setView('library')}
+            onOpenLibrary={() => setView('library')}
+          />
         </Match>
 
         <Match when={data() && view() === 'detail'}>
           <DetailView
             workout={selectedWorkout()}
             workouts={workouts()}
+            stale={stale()}
             onStart={startWorkout}
             onBack={() => setView('schedule')}
             onSaved={refetch}
@@ -77,6 +92,17 @@ function Programme() {
             colorMap={colorMap()}
             onCancel={() => setView('detail')}
             onComplete={() => setView('detail')}
+          />
+        </Match>
+
+        <Match when={data() && view() === 'library'}>
+          <ExerciseLibraryView
+            programme={data().programme}
+            workouts={workouts()}
+            stale={stale()}
+            onBack={() => setView('schedule')}
+            onSaved={refetch}
+            onError={(m) => setToast(m)}
           />
         </Match>
       </Switch>
