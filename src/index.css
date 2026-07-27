@@ -1024,3 +1024,23 @@ html, body {
   line-height: 1.5;
   opacity: 0.9;
 }
+
+.picker-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.picker-item {
+  width: 100%;
+  padding: 0.75rem 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
