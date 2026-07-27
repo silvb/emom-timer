@@ -256,14 +256,14 @@ export default function DetailView(props) {
                   <span class="exercise-name">
                     <ExerciseLine parts={describeSlot(slot, null)} />
                   </span>
-                  <Show when={slot.exercise.unilateral}>
+                  <Show when={slot.exercise?.unilateral}>
                     <button class="slot-side-btn" onClick={() => cycleSide(i())}>
                       {slot.side === 'per_round' ? 'per round' : 'both sides'}
                     </button>
                   </Show>
                   <button
                     class="slot-remove-btn"
-                    aria-label={`Remove ${slot.exercise.name}`}
+                    aria-label={`Remove ${slot.exercise?.name}`}
                     onClick={() => removeAt(i())}
                   >
                     ✕
@@ -290,7 +290,7 @@ export default function DetailView(props) {
               Cancel
             </button>
             <button class="edit-save-btn" onClick={saveSlots} disabled={busy()}>
-              {busy() ? 'Saving…' : 'Save order'}
+              {busy() ? 'Saving…' : 'Save changes'}
             </button>
           </div>
 

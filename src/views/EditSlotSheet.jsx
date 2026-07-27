@@ -131,7 +131,7 @@ export default function EditSlotSheet(props) {
       // deliberately kept open for retry, and the toast renders at the same
       // bottom-of-viewport spot behind the sheet's own backdrop, so a toast
       // here would be invisible to the user who is looking at this form.
-      setFormError(e.message ?? 'Could not save. Try again.');
+      setFormError(e.message || 'Could not save. Try again.');
     } finally {
       setBusy(false);
     }

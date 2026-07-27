@@ -34,9 +34,9 @@ export default function ExerciseLibraryView(props) {
     setBusySlug(exercise.slug);
     try {
       await setExerciseArchived(exercise.slug, !exercise.archived);
-      props.onSaved();
+      await props.onSaved();
     } catch (e) {
-      props.onError(e.message ?? 'Could not save. Try again.');
+      props.onError(e.message || 'Could not save. Try again.');
     } finally {
       setBusySlug(null);
     }
@@ -58,9 +58,9 @@ export default function ExerciseLibraryView(props) {
     setBusySlug(exercise.slug);
     try {
       await deleteExercise(exercise.slug);
-      props.onSaved();
+      await props.onSaved();
     } catch (e) {
-      props.onError(e.message ?? 'Could not delete. Try again.');
+      props.onError(e.message || 'Could not delete. Try again.');
     } finally {
       setBusySlug(null);
     }

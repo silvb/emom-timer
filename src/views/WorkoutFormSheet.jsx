@@ -75,7 +75,7 @@ export default function WorkoutFormSheet(props) {
       // A round-count change on a workout holding a ramp exercise is rejected
       // by check_workout_rounds (0001). Its message names the exercise and
       // both counts, so show it rather than a generic failure.
-      setFormError(e.message ?? 'Could not save. Try again.');
+      setFormError(e.message || 'Could not save. Try again.');
     } finally {
       setBusy(false);
     }
@@ -88,7 +88,7 @@ export default function WorkoutFormSheet(props) {
       props.onDeleted();
       props.onClose();
     } catch (e) {
-      setFormError(e.message ?? 'Could not delete. Try again.');
+      setFormError(e.message || 'Could not delete. Try again.');
     } finally {
       setBusy(false);
     }

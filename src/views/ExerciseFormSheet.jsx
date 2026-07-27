@@ -171,7 +171,7 @@ export default function ExerciseFormSheet(props) {
       props.onSaved();
       props.onClose();
     } catch (e) {
-      setFormError(e.message ?? 'Could not save. Try again.');
+      setFormError(e.message || 'Could not save. Try again.');
     } finally {
       setBusy(false);
     }
