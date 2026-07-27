@@ -321,10 +321,12 @@ git commit -m "feat: add slug derivation and list reordering helpers"
 - Produces:
   - `EXERCISE_TYPES: string[]` — `['ramp_up', 'rep_range', 'fixed', 'plain']`
   - `DAY_KEYS: string[]` — the seven lowercase day names
-  - `exerciseFormError({ name, slug, movement, type, rounds, existingSlugs, isNew }) => string | null`
-  - `workoutFormError({ id, title, day, rounds, existingIds, isNew }) => string | null`
+  - `exerciseFormError({ name, slug, movement, type, rounds, existingSlugs, currentSlug }) => string | null`
+  - `workoutFormError({ id, title, day, rounds, existingIds, currentId }) => string | null`
 
   `rounds` arrives as a **string** from the form input in both cases, for the same reason `prescriptionFormError` takes strings: `Number('')` is `0`, which would pass a naive positive check on an emptied field.
+
+  > **Amended during review.** The task originally specified an `isNew` boolean that skipped the uniqueness check when editing. That let an edit collide with a *different* record's identifier. `isNew` was removed in favour of the optional `currentSlug` / `currentId` above: the uniqueness check now always runs, excluding only the record's own identifier. The Step 1/Step 3 code below is the pre-amendment version — the shipped signature is the one in this Interfaces block.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1299,7 +1301,7 @@ export default function WorkoutFormSheet(props) {
       day: day() === '' ? null : day(),
       rounds: rounds(),
       existingIds: props.workouts.map((w) => w.id),
-      isNew,
+      currentId: existing?.id,
     });
 
   async function save() {
@@ -2450,7 +2452,7 @@ export default function ExerciseFormSheet(props) {
       type: type(),
       rounds: type() === 'ramp_up' ? rounds() : '',
       existingSlugs: Object.keys(props.programme.exercises),
-      isNew: !isEdit,
+      currentSlug: isEdit ? source.slug : undefined,
     });
     if (shape) return shape;
 
