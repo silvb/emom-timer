@@ -1118,3 +1118,29 @@ html, body {
   padding: 0.4rem 0.7rem;
   font-size: 0.8rem;
 }
+
+.edit-sheet-tall {
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.edit-subhead {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.edit-locked {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #8a6410;
+}
+
+.edit-field select:disabled,
+.edit-field input:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

@@ -151,6 +151,7 @@ export default function ExerciseLibraryView(props) {
             mode={state.mode}
             programme={props.programme}
             workouts={props.workouts}
+            onDuplicate={(exercise) => setForm({ exercise, mode: 'duplicate' })}
             onClose={() => setForm(null)}
             onSaved={props.onSaved}
           />
