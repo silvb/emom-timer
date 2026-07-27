@@ -824,7 +824,7 @@ export function sideWarnings(workout) {
 - [ ] **Step 4: Run the tests to verify they pass**
 
 Run: `pnpm test structure`
-Expected: PASS, 52 tests.
+Expected: PASS, 51 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -893,7 +893,7 @@ const CACHE_KEY = 'emom.programme.v2';
 - [ ] **Step 5: Run the full suite**
 
 Run: `pnpm test`
-Expected: PASS, 78 tests.
+Expected: PASS — 129 tests (76 pre-existing + 53 new).
 
 - [ ] **Step 6: Commit**
 
@@ -1003,7 +1003,7 @@ export async function saveWorkoutSlots(workoutId, slots) {
 - [ ] **Step 2: Verify the module still parses and the suite is unaffected**
 
 Run: `pnpm test && pnpm build`
-Expected: 78 tests pass; build succeeds.
+Expected: 129 tests pass; build succeeds.
 
 - [ ] **Step 3: Commit**
 
@@ -1113,7 +1113,7 @@ export default function ExerciseLibraryView(props) {
 - [ ] **Step 3: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds, 78 tests pass.
+Expected: build succeeds, 129 tests pass.
 
 - [ ] **Step 4: Commit**
 
@@ -1223,7 +1223,7 @@ In `src/App.jsx`, change the `ScheduleView` usage so the two callbacks are disti
 - [ ] **Step 4: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds, 78 tests pass.
+Expected: build succeeds, 129 tests pass.
 
 Manual check (`pnpm run dev`): the schedule screen shows "+ New workout" and "Exercises" above Sign out; "Exercises" opens the (empty) library screen and Back returns.
 
@@ -1535,7 +1535,7 @@ And render the sheet just above `<Toast .../>`:
 - [ ] **Step 4: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds, 78 tests pass.
+Expected: build succeeds, 129 tests pass.
 
 Manual check (after the user has applied migrations 0008–0010): "+ New workout" opens the sheet, typing a title fills the identifier, saving adds a workout to the schedule.
 
@@ -1930,7 +1930,7 @@ In `src/App.jsx`, add `exercises` and `onEditWorkout` to the `DetailView` usage:
 - [ ] **Step 4: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds after Task 11 creates `AddSlotSheet.jsx`. **If `AddSlotSheet` does not exist yet, create it as a one-line shell now** and let Task 11 replace it:
+Expected: build succeeds after Task 11 creates `AddSlotSheet.jsx`. Test count: 129. **If `AddSlotSheet` does not exist yet, create it as a one-line shell now** and let Task 11 replace it:
 
 ```js
 export default function AddSlotSheet(props) {
@@ -2051,7 +2051,7 @@ Append to `src/index.css`:
 - [ ] **Step 3: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds, 78 tests pass.
+Expected: build succeeds, 129 tests pass.
 
 Manual check: in edit mode, "+ Add exercise" lists exercises; a 3-round ramp does not appear in a 4-round workout; picking one appends it to the list; a unilateral pick arrives showing "both sides".
 
@@ -2323,7 +2323,7 @@ Append to `src/index.css`:
 - [ ] **Step 3: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds after Task 13 creates `ExerciseFormSheet.jsx`. **Create a shell now if it does not exist:**
+Expected: build succeeds after Task 13 creates `ExerciseFormSheet.jsx`. Test count: 129. **Create a shell now if it does not exist:**
 
 ```js
 export default function ExerciseFormSheet(props) {
@@ -2783,7 +2783,7 @@ Append to `src/index.css`:
 - [ ] **Step 4: Verify**
 
 Run: `pnpm build && pnpm test`
-Expected: build succeeds, 78 tests pass.
+Expected: build succeeds, 129 tests pass.
 
 Manual check: "+ New exercise" creates a ramp with four weight fields when Rounds is 4; opening an existing seeded exercise shows Kind and Rounds disabled with a reason naming the blocking workout, and "Duplicate as new exercise" re-opens the sheet with every field free and the movement carried over.
 
@@ -2846,7 +2846,7 @@ navigation is a `view` signal in `App.jsx` with values `'schedule' | 'detail' | 
 - [ ] **Step 2: Run the full verification**
 
 Run: `pnpm test && pnpm build`
-Expected: 78 tests pass, build succeeds with no warnings other than the pre-existing bundle-size note.
+Expected: 129 tests pass, build succeeds with no warnings other than the pre-existing bundle-size note.
 
 - [ ] **Step 3: Confirm the untouched files really are untouched**
 
