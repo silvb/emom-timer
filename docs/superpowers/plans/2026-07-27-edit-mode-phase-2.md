@@ -20,6 +20,7 @@
 - Weight and reps inputs are `type="text"`, not `type="number"` — a number input discards the comma decimal separator. Normalise with `normalizeDecimal` from `model.js`.
 - Do not touch `src/timer.js`, `src/audio.js`, or `src/views/ActiveView.jsx`. The active workout screen must behave exactly as it does today.
 - Commit after every task with a conventional-commit subject (`feat:`, `fix:`, `docs:`, `test:`).
+- **CSS must use the existing theme variables**, never hardcoded colours. `src/index.css` defines `--bg`, `--border`, `--text`, `--text-muted`, `--accent` at `:root` with a `prefers-color-scheme: dark` override, and the DEFAULT theme is light (`--bg: #fafaf7`). A hardcoded `rgba(255,255,255,…)` border is invisible in the default theme. Follow the established pattern at `src/index.css:81`, `:125`, `:230`.
 
 ---
 
@@ -1181,6 +1182,9 @@ Then insert the structural actions directly above the sign-out button:
 
 Append to `src/index.css`:
 
+> **Amended during review.** The CSS block below hardcodes `rgba(255,255,255,…)` borders, which are invisible against the light default theme. The shipped stylesheet uses the `--border` / `--text-muted` variables instead — see the CSS constraint in Global Constraints. Read this block for structure, not for colour values.
+
+
 ```css
 .schedule-actions {
   display: flex;
@@ -1452,6 +1456,9 @@ export default function WorkoutFormSheet(props) {
 - [ ] **Step 2: Add the styles**
 
 Append to `src/index.css`:
+
+> **Amended during review.** The CSS block below hardcodes `rgba(255,255,255,…)` borders, which are invisible against the light default theme. The shipped stylesheet uses the `--border` / `--text-muted` variables instead — see the CSS constraint in Global Constraints. Read this block for structure, not for colour values.
+
 
 ```css
 .edit-field select,
@@ -1842,6 +1849,9 @@ export default function DetailView(props) {
 
 Append to `src/index.css`:
 
+> **Amended during review.** The CSS block below hardcodes `rgba(255,255,255,…)` borders, which are invisible against the light default theme. The shipped stylesheet uses the `--border` / `--text-muted` variables instead — see the CSS constraint in Global Constraints. Read this block for structure, not for colour values.
+
+
 ```css
 .detail-edit-actions {
   display: flex;
@@ -2041,9 +2051,9 @@ Append to `src/index.css`:
   width: 100%;
   padding: 0.75rem 0.5rem;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
   background: transparent;
-  color: inherit;
+  color: var(--text);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -2282,7 +2292,7 @@ Append to `src/index.css`:
   align-items: flex-start;
   justify-content: space-between;
   padding: 0.9rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border);
 }
 
 .library-item-archived {
@@ -2772,7 +2782,7 @@ Append to `src/index.css`:
   margin-top: 0.35rem;
   font-size: 0.75rem;
   line-height: 1.45;
-  color: #e0b341;
+  color: #8a6410;
 }
 
 .edit-field select:disabled,
