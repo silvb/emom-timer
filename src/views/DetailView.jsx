@@ -20,6 +20,11 @@ export default function DetailView(props) {
   const [editError, setEditError] = createSignal(null);
   const [busy, setBusy] = createSignal(false);
 
+  // Plain slots (Rest, Carry, Skip) have no prescription row and never open the
+  // editor. Also guard against a slot whose exercise reference is gone —
+  // validateWorkout() already anticipates that shape (model.js). The tappable
+  // class is driven off the same predicate: a row that looks tappable and does
+  // nothing reads as a broken app, mid-workout, on a phone.
   const isEditable = (slot) => Boolean(slot.exercise) && slot.exercise.type !== 'plain';
 
   function editSlot(slot) {
@@ -29,13 +34,29 @@ export default function DetailView(props) {
 
   function enterEditMode() {
     setEditError(null);
-    setDraft(props.workout.slots.map((s) => ({ ...s })));
+    // Drop `position`: it reflects the slot's place in the saved list, which
+    // a reorder immediately invalidates. Nothing reads it today, but carrying
+    // a stale value forward is how a future reader (e.g. the add-slot picker)
+    // ends up trusting the wrong index.
+    setDraft(props.workout.slots.map(({ position, ...s }) => ({ ...s })));
   }
 
   function cancelEdit() {
     setDraft(null);
     setAddingSlot(false);
     setEditError(null);
+  }
+
+  // Back is top-left, where a thumb lands by habit; Cancel sits at the bottom
+  // of a scrolled list. While a draft is open, routing Back through Cancel
+  // means an instinctive tap can't silently discard an unsaved restructure —
+  // it just closes edit mode the same way Cancel does.
+  function handleBack() {
+    if (draft()) {
+      cancelEdit();
+      return;
+    }
+    props.onBack();
   }
 
   function move(index, delta) {
@@ -75,13 +96,22 @@ export default function DetailView(props) {
         props.workout.id,
         draft().map((s) => ({ exercise_slug: s.exercise.slug, side: s.side }))
       );
-      props.onSaved();
+      // Await the refetch before clearing the draft: onSaved (createResource's
+      // refetch) is async and data() still holds the pre-save slots while it
+      // is in flight. Clearing the draft first would show that stale order
+      // with busy() already false — "Edit exercises" tappable again — so a
+      // second edit started in that window would be built on top of a list
+      // missing the change that's still landing, and saving it would silently
+      // revert edit #1.
+      await props.onSaved();
       setDraft(null);
     } catch (e) {
-      // save_workout_slots is atomic: a failure here means nothing changed,
-      // so the draft is still exactly what the user intended and stays open
-      // for retry.
-      setEditError(e.message ?? 'Could not save. Nothing was changed — try again.');
+      // save_workout_slots is atomic against a server-side rejection — no
+      // partial write. It does not cover a connection dropped after commit,
+      // so an error here can describe a write that actually landed. Retrying
+      // is still safe either way: the payload is a whole-list replace, so
+      // sending it again is idempotent.
+      setEditError(`Nothing was changed. ${e.message || 'Try again.'}`);
     } finally {
       setBusy(false);
     }
@@ -89,7 +119,9 @@ export default function DetailView(props) {
 
   return (
     <div class="detail-view">
-      <button class="back-btn" onClick={props.onBack}>← Back</button>
+      <button class="back-btn" onClick={handleBack}>
+        {draft() ? '← Cancel edit' : '← Back'}
+      </button>
 
       <div class="detail-content">
         <h1 class="detail-title">{props.workout.title}</h1>
@@ -178,7 +210,7 @@ export default function DetailView(props) {
             </>
           }
         >
-          <ul class="exercise-list exercise-list-editing">
+          <ul class="exercise-list">
             <For each={draft()}>
               {(slot, i) => (
                 <li class="exercise-item exercise-item-editing">

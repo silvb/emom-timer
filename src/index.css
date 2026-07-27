@@ -897,7 +897,7 @@ html, body {
 .secondary-btn {
   flex: 1;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border);
   border-radius: 12px;
   background: transparent;
   color: inherit;
@@ -922,9 +922,9 @@ html, body {
 .edit-field input[type='text'] {
   width: 100%;
   padding: 0.7rem 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--surface);
   color: inherit;
   font: inherit;
 }
@@ -945,10 +945,10 @@ html, body {
   width: 100%;
   margin-top: 1rem;
   padding: 0.8rem 1rem;
-  border: 1px solid rgba(255, 90, 90, 0.5);
+  border: 1px solid rgba(194, 59, 47, 0.5);
   border-radius: 12px;
   background: transparent;
-  color: #ff7a7a;
+  color: #c23b2f;
   font: inherit;
   cursor: pointer;
 }
@@ -979,7 +979,7 @@ html, body {
 .slot-move-btn {
   width: 2rem;
   height: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border);
   border-radius: 6px;
   background: transparent;
   color: inherit;
@@ -995,7 +995,7 @@ html, body {
 
 .slot-side-btn {
   padding: 0.3rem 0.6rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
   color: inherit;
@@ -1011,7 +1011,7 @@ html, body {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: #ff7a7a;
+  color: #c23b2f;
   font-size: 1rem;
   cursor: pointer;
 }
