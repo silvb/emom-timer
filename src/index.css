@@ -887,3 +887,299 @@ html, body {
   cursor: pointer;
   text-align: center;
 }
+
+.schedule-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.secondary-btn {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.secondary-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.schedule-stale-note {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  text-align: center;
+}
+
+/* Matches `.edit-field input` above rather than restating it differently:
+   text inputs are already covered by that rule, and styling them again here
+   gave the Phase-2 sheets a different font, background and corner radius from
+   EditSlotSheet's fields on the same screen. 16px is load-bearing — anything
+   smaller makes iOS Safari zoom on focus. */
+.edit-field select {
+  min-height: 44px;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+}
+
+/* The generic `.edit-field input` rule stretches every input to full width and
+   a 44px tap target, which is right for a text field and wrong for the
+   unilateral checkbox that also lives inside an `.edit-field`. Opt it back out
+   to a real checkbox instead of a full-width bar. */
+.edit-field input[type='checkbox'] {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  min-height: 0;
+  padding: 0;
+  accent-color: var(--accent);
+}
+
+/* A text button for switching the movement field between the existing-movement
+   dropdown and free text — deliberately not a `.secondary-btn`, which would
+   read as a second action of equal weight to Save. */
+.edit-link-btn {
+  align-self: flex-start;
+  padding: 0.2rem 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.edit-link-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.library-item-confirm {
+  align-self: center;
+  font-size: 0.8rem;
+}
+
+.edit-hint {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  opacity: 0.55;
+}
+
+.edit-warning {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.danger-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid rgba(194, 59, 47, 0.5);
+  border-radius: 12px;
+  background: transparent;
+  color: #c23b2f;
+  font: inherit;
+  cursor: pointer;
+}
+
+.danger-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.detail-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.exercise-item-editing {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.slot-move {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.slot-move-btn {
+  width: 2rem;
+  height: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.slot-move-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.slot-side-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.slot-remove-btn {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #c23b2f;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.slot-warning {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid #e0b341;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.picker-list {
+  max-height: 50dvh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.picker-item {
+  width: 100%;
+  padding: 0.75rem 0.5rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* ── EXERCISE LIBRARY ── */
+
+.library-view {
+  min-height: 100%;
+}
+
+.library-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.library-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  white-space: nowrap;
+}
+
+.library-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.library-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.library-item-archived {
+  opacity: 0.45;
+}
+
+.library-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.library-item-name {
+  font-size: 1rem;
+}
+
+.library-item-meta,
+.library-item-used {
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+.library-item-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.library-item-actions .secondary-btn,
+.danger-btn-inline {
+  flex: 0 0 auto;
+  width: auto;
+  margin-top: 0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+}
+
+.edit-subhead {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.edit-locked {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #8a6410;
+}
+
+.edit-field select:disabled,
+.edit-field input:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

@@ -30,10 +30,10 @@ function WorkoutCard(props) {
   );
 }
 
-export default function ScheduleView({ workouts, onSelect }) {
-  const byDay = (key) => workouts.filter((w) => w.day === key);
+export default function ScheduleView(props) {
+  const byDay = (key) => props.workouts.filter((w) => w.day === key);
   const scheduledDays = () => DAYS.filter((d) => byDay(d.key).length > 0);
-  const unassigned = () => workouts.filter((w) => !w.day);
+  const unassigned = () => props.workouts.filter((w) => !w.day);
 
   return (
     <div class="schedule-view">
@@ -49,7 +49,7 @@ export default function ScheduleView({ workouts, onSelect }) {
               <h2 class="schedule-day-label">{day.label}</h2>
               <ul class="schedule-day-list">
                 <For each={byDay(day.key)}>
-                  {(w) => <WorkoutCard workout={w} onSelect={onSelect} />}
+                  {(w) => <WorkoutCard workout={w} onSelect={props.onSelect} />}
                 </For>
               </ul>
             </section>
@@ -61,10 +61,33 @@ export default function ScheduleView({ workouts, onSelect }) {
             <h2 class="schedule-day-label">Unassigned</h2>
             <ul class="schedule-day-list">
               <For each={unassigned()}>
-                {(w) => <WorkoutCard workout={w} onSelect={onSelect} />}
+                {(w) => <WorkoutCard workout={w} onSelect={props.onSelect} />}
               </For>
             </ul>
           </section>
+        </Show>
+
+        <div class="schedule-actions">
+          <button
+            class="secondary-btn"
+            disabled={props.stale}
+            onClick={() => props.onNewWorkout()}
+          >
+            + New workout
+          </button>
+          <button
+            class="secondary-btn"
+            disabled={props.stale}
+            onClick={() => props.onOpenLibrary()}
+          >
+            Exercises
+          </button>
+        </div>
+
+        <Show when={props.stale}>
+          <p class="schedule-stale-note">
+            Editing is unavailable while showing saved data.
+          </p>
         </Show>
 
         {/* The only way out of the session. Deliberately at the bottom of the
